@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>健康チェックシステム</title>
+
+    <style>
+
+        body{
+            margin:0;
+            padding:0;
+            font-family:sans-serif;
+            background:#f2f2f2;
+        }
+
+        .header{
+
+            background:#8b0000;
+            color:white;
+            padding:30px;
+            text-align:center;
+            font-size:40px;
+            font-weight:bold;
+            box-shadow:0 3px 10px rgba(0,0,0,0.2);
+
+        }
+
+        .container{
+
+            width:90%;
+            max-width:700px;
+            margin:40px auto;
+
+        }
+
+        .card{
+
+            background:white;
+            border-radius:20px;
+            padding:30px;
+            box-shadow:0 5px 20px rgba(0,0,0,0.1);
+
+        }
+
+        .status{
+
+            font-size:22px;
+            margin-bottom:30px;
+            color:#444;
+            text-align:center;
+
+        }
+
+        .menu{
+
+            display:flex;
+            flex-direction:column;
+            gap:20px;
+
+        }
+
+        .btn{
+
+            display:block;
+            text-decoration:none;
+            background:#8b0000;
+            color:white;
+            padding:20px;
+            border-radius:15px;
+            text-align:center;
+            font-size:24px;
+            font-weight:bold;
+            transition:0.3s;
+
+        }
+
+        .btn:hover{
+
+            background:#b30000;
+            transform:scale(1.03);
+
+        }
+
+        .footer{
+
+            text-align:center;
+            margin-top:30px;
+            color:gray;
+
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<div class="header">
+    健康チェックシステム
+</div>
+
+<div class="container">
+
+    <div class="card">
+
+        <div class="status">
+            システム起動中
+        </div>
+
+        <div class="menu">
+
+            <a href="/users/" class="btn">
+                登録ユーザー一覧
+            </a>
+
+            <a href="/line-logs/" class="btn">
+                LINE会話LOG
+            </a>
+
+            <a href="/danger-logs/" class="btn">
+                要注意者一覧
+            </a>
+
+            <a href="/send/" class="btn">
+                健康チェック送信
+            </a>
+
+            <a href="/admin/" class="btn">
+                管理画面
+            </a>
+
+        </div>
+
+        <div class="footer">
+            マルキョウユニオン 健康チェックシステム
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>

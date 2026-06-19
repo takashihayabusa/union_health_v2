@@ -1,0 +1,361 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>マルキョウユニオン健康チェック</title>
+
+    <style>
+
+        body {
+
+            background: #f4f9ff;
+            font-family: sans-serif;
+            margin: 0;
+            padding: 0;
+
+        }
+
+        .container {
+
+            width: 90%;
+            max-width: 700px;
+            margin: 30px auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+
+        }
+
+        h1 {
+
+            text-align: center;
+            color: #1976d2;
+            margin-bottom: 10px;
+
+        }
+
+        .sub-title {
+
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+
+        }
+
+        .card {
+
+            background: #f8fbff;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 25px;
+            border: 1px solid #dbe9ff;
+
+        }
+
+        h2 {
+
+            color: #1565c0;
+            margin-top: 0;
+
+        }
+
+        button {
+
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            background: #1976d2;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            margin-top: 15px;
+
+        }
+
+        button:hover {
+
+            background: #0d47a1;
+
+        }
+
+        .qr-button {
+
+            background: #06c755;
+
+        }
+
+        .qr-button:hover {
+
+            background: #039c43;
+
+        }
+
+        select {
+
+            width: 100%;
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+            margin-top: 10px;
+
+        }
+
+        .success {
+
+            background: #dff0d8;
+            color: #2e7d32;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+
+        }
+
+        .menu-link {
+
+            display: block;
+            text-align: center;
+            text-decoration: none;
+            background: #43a047;
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            font-size: 18px;
+
+        }
+
+        .menu-link:hover {
+
+            background: #2e7d32;
+
+        }
+
+        .qr-box {
+
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+
+        }
+
+        .qr-box img {
+
+            border-radius: 15px;
+            background: white;
+            padding: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h1>
+            マルキョウユニオン
+        </h1>
+
+        <p class="sub-title">
+            健康チェック・緊急生存確認システム
+        </p>
+
+        {% if messages %}
+
+            {% for message in messages %}
+
+                <div class="success">
+
+                    {{ message }}
+
+                </div>
+
+            {% endfor %}
+
+        {% endif %}
+
+
+        <!-- 健康チェック送信 -->
+
+        <div class="card">
+
+            <h2>
+                健康チェック送信
+            </h2>
+
+            <form method="POST" action="{% url 'send_health_check' %}">
+
+                {% csrf_token %}
+
+                <button type="submit">
+
+                    健康チェックを送信
+
+                </button>
+
+            </form>
+
+        </div>
+
+
+        <!-- 緊急生存確認 -->
+
+        <div class="card">
+
+            <h2>
+                緊急生存確認
+            </h2>
+
+            <form method="POST" action="{% url 'emergency_send' %}">
+
+                {% csrf_token %}
+
+                <label>
+                    地域を選択してください
+                </label>
+
+                <select name="region" required>
+
+                    <option value="">
+                        地域を選択
+                    </option>
+
+                    <option value="福岡">
+                        福岡
+                    </option>
+
+                    <option value="熊本">
+                        熊本
+                    </option>
+
+                    <option value="長崎">
+                        長崎
+                    </option>
+
+                    <option value="佐賀">
+                        佐賀
+                    </option>
+
+                </select>
+
+                <button type="submit">
+
+                    緊急生存確認を送信
+
+                </button>
+
+            </form>
+
+        </div>
+
+
+        <!-- LINE登録 -->
+
+        <div class="card">
+
+            <h2>
+                LINE登録
+            </h2>
+
+            <p>
+                初めての方はこちらから登録してください
+            </p>
+
+            <button
+                type="button"
+                class="qr-button"
+                onclick="toggleQR()"
+            >
+
+                LINE登録QRコードを表示
+
+            </button>
+
+            <div id="qrBox" class="qr-box">
+
+                <img
+                    src="{% static 'images/line_qr.png' %}"
+                    width="250"
+                >
+
+                <p>
+                    LINEでQRコードを読み取ってください
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <!-- ユーザー一覧 -->
+
+        <div class="card">
+
+            <h2>
+                登録者一覧
+            </h2>
+
+            <a href="{% url 'user_list' %}" class="menu-link">
+
+                登録者一覧を見る
+
+            </a>
+
+        </div>
+
+
+        <!-- LINEログ一覧 -->
+
+        <div class="card">
+
+            <h2>
+                LINEログ一覧
+            </h2>
+
+            <a href="{% url 'line_logs' %}" class="menu-link">
+
+                LINE会話LOGを見る
+
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <script>
+
+        function toggleQR() {
+
+            const qrBox = document.getElementById("qrBox");
+
+            if (qrBox.style.display === "block") {
+
+                qrBox.style.display = "none";
+
+            } else {
+
+                qrBox.style.display = "block";
+
+            }
+
+        }
+
+    </script>
+
+</body>
+
+</html>

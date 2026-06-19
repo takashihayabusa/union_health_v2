@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <title>地域別送信</title>
+
+    <style>
+
+        body{
+            font-family: sans-serif;
+            margin: 30px;
+        }
+
+        select, textarea, button{
+            width: 100%;
+            margin-top: 10px;
+            padding: 10px;
+            font-size: 16px;
+        }
+
+        button{
+            background: green;
+            color: white;
+            border: none;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<h1>地域別 一斉送信</h1>
+
+<form method="POST">
+
+    {% csrf_token %}
+
+    <label>地域選択</label>
+
+    <select name="region">
+
+        <option value="福岡">福岡</option>
+
+        <option value="熊本">熊本</option>
+
+        <option value="長崎">長崎</option>
+
+        <option value="佐賀">佐賀</option>
+
+    </select>
+
+    <label>送信内容</label>
+
+    <textarea
+        name="message"
+        rows="8"
+    >元気ですか？</textarea>
+
+    <button type="submit">
+        送信
+    </button>
+
+</form>
+{% if message_text %}
+
+<p style="color:green;">
+    {{ message_text }}
+</p>
+
+{% endif %}
+
+</body>
+</html>pytj
