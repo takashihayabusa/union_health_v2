@@ -121,52 +121,57 @@ def send_health_check(request):
 # -------------------------
 def emergency_send(request):
 
-    users = LineUser.objects.all()
+    users = LineUser.objects.exclude(
+    user_id__startswith="web_"
+    )
 
     for user in users:
 
-        message = TextSendMessage(
+        print("送信先:", user.name, user.user_id)
 
+        message = TextSendMessage(
             text=(
                 "緊急生存確認です。\n"
                 "現在の状態を選択してください。"
             ),
-
-            quick_reply=QuickReply(
-                items=[
-
-                    QuickReplyButton(
-                        action=MessageAction(
-                            label="無事です",
-                            text="無事です"
-                        )
-                    ),
-
-                    QuickReplyButton(
-                        action=MessageAction(
-                            label="ケガ",
-                            text="ケガ"
-                        )
-                    ),
-
-                    QuickReplyButton(
-                        action=MessageAction(
-                            label="危険",
-                            text="危険"
-                        )
-                    ),
-
-                ]
-            )
+        quick_reply=QuickReply(
+            items=[
+                QuickReplyButton(
+                    action=MessageAction(
+                        label="無事です",
+                        text="無事です"
+                    )
+                ),
+                QuickReplyButton(
+                    action=MessageAction(
+                        label="ケガ",
+                        text="ケガ"
+                    )
+                ),
+                QuickReplyButton(
+                    action=MessageAction(
+                        label="危険",
+                        text="危険"
+                    )
+                ),
+            ]
         )
+    )
 
+    try:
         line_bot_api.push_message(
             user.user_id,
             message
         )
 
-    return HttpResponse("緊急送信完了")
+        print("送信成功")
 
+    except Exception as e:
+
+        print("送信失敗:", user.user_id)
+        print(e)
+
+    return HttpResponse("確認完了")
 
 # -------------------------
 # callback
@@ -320,16 +325,29 @@ def handle_message(event):
         )
 
     elif text == "ケガ":
-
         reply = TextSendMessage(
-            text="周囲へ助けを求めてください。GPSを送信してください。"
+        text=(
+            "ケガをされています。\n\n"
+            "周りに誰かいませんか？\n"
+            "近くの人に助けを求めてください。\n\n"
+            "現在地を確認するため、GPSを送信してください。"
+            )
         )
 
     elif text == "危険":
 
         reply = TextSendMessage(
-            text="安全な場所へ避難してください。GPSを送信してください。"
+        text=(
+            "危険な状況とのこと、心配しています。\n\n"
+            "まずはご自身の安全確保を最優先にしてください。\n"
+            "近くに安全な場所があれば避難してください。\n"
+            "周囲に人がいる場合は助けを求めてください。\n\n"
+            "組合でも状況を確認したいので、GPSを送信してください。"
+            )
         )
+
+
+
 
     else:
 
@@ -340,23 +358,73 @@ def handle_message(event):
         event.reply_token,
         reply
         )
+@handler.add(MessageEvent, message=LocationMessage)
+def handle_location(event):
+
+    user_id = event.source.user_id
+
+    user = LineUser.objects.get(user_id=user_id)
+
+    gps_text = (
+        f"緯度: {event.message.latitude}\n"
+        f"経度: {event.message.longitude}"
+    )
+
+    log = LineLog.objects.create(
+        user=user,
+        message_type="GPS",
+        content=gps_text
+    )
+
+    print("GPS保存:", log.id)
+
+    line_bot_api.reply_message(
+        event.reply_token,
+        TextSendMessage(
+            text="GPSを受信しました。"
+        )
+    )
 # -------------------------
 # LINE LOG
 # -------------------------
 def line_logs(request):
-
     logs = LineLog.objects.all().order_by('-created_at')
-
+    
     html = "<h1>LINE LOG</h1>"
-
+    
     for log in logs:
+        
+        color = "black"
+        
+        if "危険" in log.content:
+            color = "red"
+            
+        elif "ケガ" in log.content:
+            color = "orange"
+        
+        elif "無事" in log.content:
+            color = "green"
 
         html += (
-            f"<p>"
-            f"{log.created_at.strftime('%Y-%m-%d %H:%M')} "
-            f"{log.user.name or log.user.user_id} "
-            f"{log.content}"
-            f"</p>"
+            f"<hr>"
+            f"<p><b>日時:</b> {log.created_at.strftime('%Y-%m-%d %H:%M')}</p>"
+            f"<p><b>名前:</b> {log.user.name or log.user.user_id}</p>"
+            f"<p><b>種類:</b> {log.message_type}</p>"
+            f"<pre style='color:{color}; font-weight:bold;'>{log.content}</pre>"
         )
+
+        if log.message_type == "GPS":
+            
+            lines = log.content.split("\n")
+
+        if len(lines) >= 2:
+
+            lat = lines[0].replace("緯度:", "").strip()
+            lon = lines[1].replace("経度:", "").strip()
+
+            html += (
+                f'<a href="https://www.google.com/maps?q={lat},{lon}" '
+                f'target="_blank">📍地図を見る</a>'
+            )
 
     return HttpResponse(html)
