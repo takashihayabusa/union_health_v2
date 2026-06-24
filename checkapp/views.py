@@ -321,31 +321,42 @@ def handle_message(event):
     elif text == "無事です":
 
         reply = TextSendMessage(
-            text="無事の確認ができました。GPSを送信してください。"
+        text=
+        "無事で安心しました。\n\n"
+        "安全な場所で待機してください。\n\n"
+        "📍GPSの送り方\n\n"
+        "① LINEの「＋」を押す\n"
+        "②「位置情報」を選ぶ\n"
+        "③「この位置を送信」を押す\n\n"
+        "現在地を確認するため、GPSを送信してください。"
         )
 
     elif text == "ケガ":
+
         reply = TextSendMessage(
-        text=(
-            "ケガをされています。\n\n"
-            "周りに誰かいませんか？\n"
-            "近くの人に助けを求めてください。\n\n"
-            "現在地を確認するため、GPSを送信してください。"
-            )
+        text=
+            "ケガをされているとのこと、心配しています。\n\n"
+            "周囲の方へ助けを求めてください。\n\n"
+            "📍GPSの送り方\n\n"
+            "① LINEの「＋」を押す\n"
+            "②「位置情報」を選ぶ\n"
+            "③「この位置を送信」を押す\n\n"
+            "救助や状況確認のため、GPSを送信してください。"
         )
 
     elif text == "危険":
 
         reply = TextSendMessage(
-        text=(
-            "危険な状況とのこと、心配しています。\n\n"
-            "まずはご自身の安全確保を最優先にしてください。\n"
-            "近くに安全な場所があれば避難してください。\n"
-            "周囲に人がいる場合は助けを求めてください。\n\n"
-            "組合でも状況を確認したいので、GPSを送信してください。"
-            )
+        text=
+            "危険な状況です。\n\n"
+            "まずは身の安全を最優先にしてください。\n"
+            "避難できる場合は安全な場所へ移動してください。\n\n"
+            "📍GPSの送り方\n\n"
+            "① LINEの「＋」を押す\n"
+            "②「位置情報」を選ぶ\n"
+            "③「この位置を送信」を押す\n\n"
+            "現在地を把握するため、GPSを送信してください。"
         )
-
 
 
 
@@ -416,15 +427,13 @@ def line_logs(request):
         if log.message_type == "GPS":
             
             lines = log.content.split("\n")
-
-        if len(lines) >= 2:
-
-            lat = lines[0].replace("緯度:", "").strip()
-            lon = lines[1].replace("経度:", "").strip()
-
-            html += (
-                f'<a href="https://www.google.com/maps?q={lat},{lon}" '
-                f'target="_blank">📍地図を見る</a>'
+            
+            if len(lines) >= 2:
+                lat = lines[0].replace("緯度:", "").strip()
+                lon = lines[1].replace("経度:", "").strip()
+                html += (
+                    f'<a href="https://www.google.com/maps?q={lat},{lon}" '
+                    f'target="_blank">📍地図を見る</a>'
             )
 
     return HttpResponse(html)
