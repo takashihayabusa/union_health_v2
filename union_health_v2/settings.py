@@ -21,7 +21,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-*rnltq08q#jpsxkiamb-!ee7oyc!h%w(pa_dqj6ubr029z=yj="
+SECRET_KEY = "950d8a6f5b04919e11ed781ce6efaa56"
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -138,5 +138,5 @@ STATICFILES_DIRS = [
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-LINE_CHANNEL_ACCESS_TOKEN = 'G+WVfBYA61JkTqXM+r1/Y3HlksAxH2sq8lm/Zm2ifIr6agVcr339zAbjUfmZSp5tkyB97l0pG681K7hGtUnbmXnV2CyG8O7t/dTDhoA9CJI94aftXczCEfFwmWTTEu3tdLWNDWiHH7lzrW4uPX0UOgdB04t89/1O/w1cDnyilFU='
-LINE_CHANNEL_SECRET = 'ab06793a22d874528049156bf4de7dc8'
+LINE_CHANNEL_ACCESS_TOKEN = 'seS8M4BYO5pzMz5ef8O7MUXXuQGMNrvtJBJ5/0MYrFGpCrDGtdGaerRrOFYRjVP/V89ESH/0LddyOmB01AKXdTGZc/nC3vWNlUkE4CSkb2zCjEaxLbYaxY7h/iziON1omIGgRVBgIKArfSxyaQeLDAdB04t89/1O/w1cDnyilFU='
+LINE_CHANNEL_SECRET = '950d8a6f5b04919e11ed781ce6efaa56'
