@@ -114,7 +114,7 @@ def send_health_check(request):
             user.user_id,
             message
         )
-        return HttpResponse("健康チェック送信完了")
+    return HttpResponse("健康チェック送信完了")
 
 # -------------------------
 # 緊急生存確認
