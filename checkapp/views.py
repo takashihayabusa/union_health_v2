@@ -493,45 +493,55 @@ def handle_message(event):
 
     elif text == "誰もいません":
 
-        user.step = "wait_emergency_phone"
+        user.step = "wait_gps"
         user.save()
 
         reply = TextSendMessage(
             text=(
                 "落ち着いてください。\n\n"
-                "GPSと電話番号を送ってください。\n\n"
-                "こちらから連絡します。"
+                "こちらから救援や電話での対応ができないか確認いたします。\n\n"
+                "まずGPSを送ってください。\n"
+                "その後、電話番号を入力してください。\n\n"
+                "【GPSの送り方】\n\n"
+                "① LINEの左下にある「＋」を押します。\n"
+                "② 「位置情報」を選択します。\n"
+                "③ 「現在地を送信」を押してください。"
             )
-        )
-
+)
         line_bot_api.reply_message(
-        event.reply_token,
-        reply
-        )
+            event.reply_token,
+            reply
+            )
         return
-    elif user.step == "wait_emergency_phone":
+    elif user.step == "wait_phone_number":
 
-        phone = text
-
-        LineLog.objects.create(
-            user=user,
-            message_type="text",
-            content=f"緊急電話番号: {phone}"
-        )
-
+    # 電話番号を保存
+        user.phone = text
         user.step = ""
         user.save()
 
-        line_bot_api.reply_message(
-            event.reply_token,
-            TextSendMessage(
-                text="ありがとうございます。\n\n救援ができるか確認します。"
+    # LINE LOGへ保存
+        LineLog.objects.create(
+            user=user,
+            sender="USER",
+            message_type="電話番号",
+            content=text
             )
+
+        reply = TextSendMessage(
+        text=(
+            "電話番号を確認しました。\n\n"
+            "ありがとうございます。\n\n"
+            "現在の状況を確認し、\n"
+            "救援や電話での対応ができないか確認いたします。\n\n"
+            "委員長または組合からご連絡いたしますので、\n"
+            "しばらくお待ちください。"
         )
+    )
         return
     else:
         reply = TextSendMessage(
-        text="メッセージを受信しました。"
+        text="組合から連絡させて下さい"
         )
 
         line_bot_api.reply_message(
