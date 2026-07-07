@@ -2,17 +2,17 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-path('', views.home, name='home'),
+    path("", views.home, name="home"),
 
-path('callback/', views.callback, name='callback'),
+    path("callback/", views.callback, name="callback"),
 
-path('users/', views.user_list, name='user_list'),
+    path("users/", views.user_list, name="user_list"),
 
-path('send/', views.send_health_check, name='send_health_check'),
+    path("register/", views.register, name="register"),
 
-path('emergency-send/', views.emergency_send, name='emergency_send'),
+    path("send/", views.send_health_check, name="send_health_check"),
 
-path('line-logs/', views.line_logs, name='line_logs'),
+    path("emergency-send/", views.emergency_send, name="emergency_send"),
 
-path('register/', views.register, name='register'),
+    path("line-logs/", views.line_logs, name="line_logs"),
 ]

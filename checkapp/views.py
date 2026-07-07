@@ -20,37 +20,58 @@ handler = WebhookHandler(settings.LINE_CHANNEL_SECRET)
 # -------------------------
 def home(request):
 
-    return render(request, 'home.html')
-
+    return render(
+        request,
+        "checkapp/home.html"
+    )
 
 # -------------------------
 # ユーザー一覧
 # -------------------------
 def user_list(request):
 
-    users = LineUser.objects.all().order_by('-id')
+    users = (
+        LineUser.objects
+        .all()
+        .order_by("-created_at")
+    )
 
     return render(
         request,
-        'user_list.html',
-        {'users': users}
+        "checkapp/user_list.html",
+        {
+            "users": users,
+        }
     )
 # -------------------------
-# 登録ページ
+# 登録
 # -------------------------
-
 def register(request):
+
+    # GETでもPOSTでも user_id を取得
+    user_id = request.GET.get("user_id") or request.POST.get("user_id")
 
     if request.method == "POST":
 
-        name = request.POST.get("name")
-        region = request.POST.get("region")
+        name = request.POST.get("name", "").strip()
+        region = request.POST.get("region", "").strip()
 
-        LineUser.objects.create(
-            user_id=f"web_{name}",
-            name=name,
-            region=region,
-            step="none"
+        if not name or not region:
+            return render(
+                request,
+                "checkapp/register.html",
+                {
+                    "error": "名前と地域を入力してください。",
+                    "user_id": user_id,
+                }
+            )
+
+        LineUser.objects.update_or_create(
+            user_id=user_id,
+            defaults={
+                "name": name,
+                "region": region,
+            }
         )
 
         return render(
@@ -60,13 +81,20 @@ def register(request):
 
     return render(
         request,
-        "checkapp/register.html"
+        "checkapp/register.html",
+        {
+            "user_id": user_id,
+        }
     )
+
+# -------------------------
+# 健康チェック送信
+# -------------------------
 def send_health_check(request):
 
     users = LineUser.objects.exclude(
-    user_id__startswith="web_"
-)
+        user_id__startswith="web_"
+    )
 
     for user in users:
 
@@ -74,47 +102,47 @@ def send_health_check(request):
         user.save()
 
         message = TextSendMessage(
-
             text=(
                 "【健康チェック】\n\n"
                 "現在の体調を教えてください。"
             ),
-
             quick_reply=QuickReply(
                 items=[
-
                     QuickReplyButton(
                         action=MessageAction(
                             label="元気です",
                             text="元気です"
                         )
                     ),
-
                     QuickReplyButton(
                         action=MessageAction(
                             label="少し疲れています",
                             text="少し疲れています"
                         )
                     ),
-
                     QuickReplyButton(
                         action=MessageAction(
                             label="かなり辛いです",
                             text="かなり辛いです"
                         )
                     ),
-
                 ]
             )
         )
 
+        try:
+            line_bot_api.push_message(
+                user.user_id,
+                message
+            )
+            print("送信成功:", user.user_id)
 
+        except Exception as e:
+            print("送信失敗:", user.user_id)
+            print(e)
 
-        line_bot_api.push_message(
-            user.user_id,
-            message
-        )
     return HttpResponse("健康チェック送信完了")
+
 
 # -------------------------
 # 緊急生存確認
@@ -122,7 +150,7 @@ def send_health_check(request):
 def emergency_send(request):
 
     users = LineUser.objects.exclude(
-    user_id__startswith="web_"
+        user_id__startswith="web_"
     )
 
     for user in users:
@@ -131,66 +159,64 @@ def emergency_send(request):
 
         message = TextSendMessage(
             text=(
-                "緊急生存確認です。\n"
+                "【緊急生存確認】\n\n"
                 "現在の状態を選択してください。"
             ),
-        quick_reply=QuickReply(
-            items=[
-                QuickReplyButton(
-                    action=MessageAction(
-                        label="無事です",
-                        text="無事です"
-                    )
-                ),
-                QuickReplyButton(
-                    action=MessageAction(
-                        label="ケガ",
-                        text="ケガ"
-                    )
-                ),
-                QuickReplyButton(
-                    action=MessageAction(
-                        label="危険",
-                        text="危険"
-                    )
-                ),
-            ]
-        )
-    )
-
-    try:
-        line_bot_api.push_message(
-            user.user_id,
-            message
+            quick_reply=QuickReply(
+                items=[
+                    QuickReplyButton(
+                        action=MessageAction(
+                            label="無事です",
+                            text="無事です"
+                        )
+                    ),
+                    QuickReplyButton(
+                        action=MessageAction(
+                            label="ケガ",
+                            text="ケガ"
+                        )
+                    ),
+                    QuickReplyButton(
+                        action=MessageAction(
+                            label="危険",
+                            text="危険"
+                        )
+                    ),
+                ]
+            )
         )
 
-        print("送信成功")
+        try:
+            line_bot_api.push_message(
+                user.user_id,
+                message
+            )
 
-    except Exception as e:
+            print("送信成功:", user.user_id)
 
-        print("送信失敗:", user.user_id)
-        print(e)
+        except Exception as e:
 
-    return HttpResponse("確認完了")
+            print("送信失敗:", user.user_id)
+            print(e)
+
+    return HttpResponse("緊急生存確認を送信しました")
 
 # -------------------------
-# callback
+# Callback
 # -------------------------
 @csrf_exempt
 def callback(request):
 
-    body = request.body.decode('utf-8')
-    signature = request.META['HTTP_X_LINE_SIGNATURE']
+    body = request.body.decode("utf-8")
+    signature = request.META.get("HTTP_X_LINE_SIGNATURE", "")
 
     try:
         handler.handle(body, signature)
 
     except Exception as e:
-        print(e)
+        print("Callback Error:", e)
 
     return HttpResponse("OK")
-
-
 @handler.add(FollowEvent)
 def handle_follow(event):
 
@@ -200,7 +226,9 @@ def handle_follow(event):
         user_id=user_id
     )
 
-    register_url = " https://nonfrigid-smug-candance.ngrok-free.dev/register"
+    register_url = (
+    f"https://nonfrigid-smug-candance.ngrok-free.dev/register?user_id={user_id}"
+    )
 
     line_bot_api.reply_message(
         event.reply_token,
@@ -223,20 +251,22 @@ def handle_message(event):
 
     user, created = LineUser.objects.get_or_create(
         user_id=user_id
-    )
+        )
 
     print("受信メッセージ:", text)
-    
-    LineLog.objects.create(
-    user=user,
-    message_type="text",
-    content=text
-)
+
 
     if text == "元気です":
 
         reply = TextSendMessage(
             text="それは何よりです。今日も一日頑張りましょう。"
+        )
+
+        LineLog.objects.create(
+            user=user,
+            sender="BOT",
+            message_type="text",
+            content="それは何よりです。今日も一日頑張りましょう。"
         )
 
     elif text == "少し疲れています":
@@ -260,180 +290,306 @@ def handle_message(event):
                 ]
             )
         )
+        
+        line_bot_api.reply_message(
+        event.reply_token,
+        reply
+        )
 
     elif text == "体調":
 
         reply = TextSendMessage(
-            text="病院の受診をおすすめします。無理をせず休養してください。"
+            text="無理をせず、病院の受診も検討してください。お大事になさってください。"
+        )
+
+        line_bot_api.reply_message(
+            event.reply_token,
+            reply
         )
 
     elif text == "メンタル":
 
         reply = TextSendMessage(
-            text="原因は個人ですか？ 仕事ですか？",
+            text="原因を教えてください。",
             quick_reply=QuickReply(
                 items=[
                     QuickReplyButton(
-                        action=MessageAction(label="個人", text="個人")
+                        action=MessageAction(
+                            label="個人的な悩み",
+                            text="個人的な悩み"
+                        )
                     ),
                     QuickReplyButton(
-                        action=MessageAction(label="仕事", text="仕事")
+                        action=MessageAction(
+                            label="仕事の悩み",
+                            text="仕事の悩み"
+                        )
                     ),
                 ]
             )
         )
 
-    elif text == "個人":
-
-        reply = TextSendMessage(
-            text="身近な方へ相談してください。一人で抱え込まないようにしましょう。"
+        line_bot_api.reply_message(
+            event.reply_token,
+            reply
         )
 
-    elif text == "仕事":
+    elif text == "個人的な悩み":
 
         reply = TextSendMessage(
-            text="無理をしないでください。\n委員長が相談に乗ります。\n電話しますか？それともLINEで相談しますか？",
-            quick_reply=QuickReply(
-                items=[
-                    QuickReplyButton(
-                        action=MessageAction(label="電話", text="電話")
-                    ),
-                    QuickReplyButton(
-                        action=MessageAction(label="LINE", text="LINE")
-                    ),
-                ]
+            text="一人で抱え込まず、信頼できる方へ相談してください。"
+        )
+
+        line_bot_api.reply_message(
+            event.reply_token,
+            reply
+        )
+
+    elif text == "仕事の悩み":
+
+        reply = TextSendMessage(
+        text="委員長に相談できます。\nどうしますか？",
+        quick_reply=QuickReply(
+            items=[
+                QuickReplyButton(
+                    action=MessageAction(
+                        label="お願いします",
+                        text="お願いします"
+                    )
+                ),
+                QuickReplyButton(
+                    action=MessageAction(
+                        label="いいえ結構です",
+                        text="いいえ結構です"
+                    )
+                ),
+            ]
+        )
+    )
+        line_bot_api.reply_message(
+            event.reply_token,
+            reply
+        )
+        return
+    elif text == "お願いします":
+        user.step = "wait_phone_number"
+        user.save()
+
+        reply = TextSendMessage(
+            text="電話番号を入力してください。"
+            )
+
+        line_bot_api.reply_message(
+            event.reply_token,
+            reply
+        )
+        return
+
+
+    elif user.step == "wait_phone_number":
+
+        phone = text
+
+        # 電話番号をLINE LOGへ保存
+        LineLog.objects.create(
+            user=user,
+            message_type="text",
+            content=f"電話番号: {phone}"
+        )
+
+        user.step = ""
+        user.save()
+
+        line_bot_api.reply_message(
+            event.reply_token,
+            TextSendMessage(
+                text="ありがとうございます。\n\n委員長からお電話させます。"
+            )
+        )
+        return
+
+
+    elif text == "いいえ結構です":
+
+        user.step = ""
+        user.save()
+
+        reply = TextSendMessage(
+            text=(
+                "会社には内部通報がありますので\n"
+                "ご利用ください。\n\n"
+                "TEL 092-123-4567"
             )
         )
 
-
-    elif text == "LINE":
-        reply = TextSendMessage(
-        text="委員長のLINEへご相談ください。"
-    )
-    elif text == "電話":
-        reply = TextSendMessage(
-        text=(
-            "委員長へお電話ください。\n\n"
-            "【委員長連絡先】\n"
-            "090-1234-5678"
+        line_bot_api.reply_message(
+        event.reply_token,
+        reply
         )
-    )
+        return
+    # =========================
+    # 緊急生存確認
+    # =========================
+    
     elif text == "無事です":
-
+        
         reply = TextSendMessage(
-        text=
-        "無事で安心しました。\n\n"
-        "安全な場所で待機してください。\n\n"
-        "📍GPSの送り方\n\n"
-        "① LINEの「＋」を押す\n"
-        "②「位置情報」を選ぶ\n"
-        "③「この位置を送信」を押す\n\n"
-        "現在地を確認するため、GPSを送信してください。"
+            text="より安全な場所へ移動してください。\n\n困っている方がいたら助け合いをお願いします。"
+            )
+
+        line_bot_api.reply_message(
+            event.reply_token,
+            reply
         )
 
     elif text == "ケガ":
 
         reply = TextSendMessage(
-        text=
-            "ケガをされているとのこと、心配しています。\n\n"
-            "周囲の方へ助けを求めてください。\n\n"
-            "📍GPSの送り方\n\n"
-            "① LINEの「＋」を押す\n"
-            "②「位置情報」を選ぶ\n"
-            "③「この位置を送信」を押す\n\n"
-            "救助や状況確認のため、GPSを送信してください。"
+            text="大丈夫ですか？\n\n周囲に人がいたら助けを求めてください。\n\nGPSを送信してください。"
+        )
+
+        line_bot_api.reply_message(
+            event.reply_token,
+            reply
         )
 
     elif text == "危険":
 
         reply = TextSendMessage(
-        text=
-            "危険な状況です。\n\n"
-            "まずは身の安全を最優先にしてください。\n"
-            "避難できる場合は安全な場所へ移動してください。\n\n"
-            "📍GPSの送り方\n\n"
-            "① LINEの「＋」を押す\n"
-            "②「位置情報」を選ぶ\n"
-            "③「この位置を送信」を押す\n\n"
-            "現在地を把握するため、GPSを送信してください。"
+            text="近くに人はいますか？",
+            quick_reply=QuickReply(
+                items=[
+                    QuickReplyButton(
+                        action=MessageAction(
+                            label="近くにいます",
+                            text="近くにいます"
+                        )
+                    ),
+                    QuickReplyButton(
+                        action=MessageAction(
+                            label="誰もいません",
+                            text="誰もいません"
+                        )
+                    ),
+                ]
+            )
         )
 
+        line_bot_api.reply_message(
+            event.reply_token,
+            reply
+        )
 
-
-    else:
+    elif text == "近くにいます":
 
         reply = TextSendMessage(
-            text="メッセージを受信しました。"
+            text="近くの人と一緒に安全な場所へ避難してください。\n\nGPSを送信してください。"
         )
-    line_bot_api.reply_message(
+
+        line_bot_api.reply_message(
+            event.reply_token,
+            reply
+        )
+
+    elif text == "誰もいません":
+
+        user.step = "wait_emergency_phone"
+        user.save()
+
+        reply = TextSendMessage(
+            text=(
+                "落ち着いてください。\n\n"
+                "GPSと電話番号を送ってください。\n\n"
+                "こちらから連絡します。"
+            )
+        )
+
+        line_bot_api.reply_message(
         event.reply_token,
         reply
         )
+        return
+    elif user.step == "wait_emergency_phone":
+
+        phone = text
+
+        LineLog.objects.create(
+            user=user,
+            message_type="text",
+            content=f"緊急電話番号: {phone}"
+        )
+
+        user.step = ""
+        user.save()
+
+        line_bot_api.reply_message(
+            event.reply_token,
+            TextSendMessage(
+                text="ありがとうございます。\n\n救援ができるか確認します。"
+            )
+        )
+        return
+    else:
+        reply = TextSendMessage(
+        text="メッセージを受信しました。"
+        )
+
+        line_bot_api.reply_message(
+            event.reply_token,
+            reply
+        )
+        return
+    
+    
+        
 @handler.add(MessageEvent, message=LocationMessage)
 def handle_location(event):
 
     user_id = event.source.user_id
-
     user = LineUser.objects.get(user_id=user_id)
 
     gps_text = (
-        f"緯度: {event.message.latitude}\n"
-        f"経度: {event.message.longitude}"
+    f"緯度: {event.message.latitude}\n"
+    f"経度: {event.message.longitude}"
     )
 
-    log = LineLog.objects.create(
+    LineLog.objects.create(
         user=user,
-        message_type="GPS",
+        message_type="location",
         content=gps_text
     )
 
-    print("GPS保存:", log.id)
+    # 電話番号入力待ち
+    user.step = "wait_emergency_phone"
+    user.save()
 
     line_bot_api.reply_message(
         event.reply_token,
         TextSendMessage(
-            text="GPSを受信しました。"
+            text="ありがとうございます。\n\n続いて電話番号を入力してください。"
         )
     )
+    line_bot_api.reply_message(
+        event.reply_token,
+        reply
+        )         
+    return
+
 # -------------------------
 # LINE LOG
 # -------------------------
 def line_logs(request):
-    logs = LineLog.objects.all().order_by('-created_at')
-    
-    html = "<h1>LINE LOG</h1>"
-    
-    for log in logs:
-        
-        color = "black"
-        
-        if "危険" in log.content:
-            color = "red"
-            
-        elif "ケガ" in log.content:
-            color = "orange"
-        
-        elif "無事" in log.content:
-            color = "green"
 
-        html += (
-            f"<hr>"
-            f"<p><b>日時:</b> {log.created_at.strftime('%Y-%m-%d %H:%M')}</p>"
-            f"<p><b>名前:</b> {log.user.name or log.user.user_id}</p>"
-            f"<p><b>種類:</b> {log.message_type}</p>"
-            f"<pre style='color:{color}; font-weight:bold;'>{log.content}</pre>"
-        )
+    logs = (
+        LineLog.objects
+        .select_related("user")
+        .order_by("-created_at")
+    )
 
-        if log.message_type == "GPS":
-            
-            lines = log.content.split("\n")
-            
-            if len(lines) >= 2:
-                lat = lines[0].replace("緯度:", "").strip()
-                lon = lines[1].replace("経度:", "").strip()
-                html += (
-                    f'<a href="https://www.google.com/maps?q={lat},{lon}" '
-                    f'target="_blank">📍地図を見る</a>'
-            )
-
-    return HttpResponse(html)
+    return render(
+        request,
+        "checkapp/line_logs.html",
+        {
+            "logs": logs,
+        }
+    )

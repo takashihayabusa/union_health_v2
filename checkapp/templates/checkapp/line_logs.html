@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>LINE LOG</title>
+
+<style>
+
+body{
+    font-family:sans-serif;
+    background:#f5f5f5;
+    margin:30px;
+}
+
+h1{
+    color:#008000;
+    text-align:center;
+}
+
+.card{
+    background:white;
+    border-radius:15px;
+    padding:20px;
+    margin-bottom:20px;
+    box-shadow:0 0 10px rgba(0,0,0,.15);
+}
+
+.time{
+    color:#666;
+    font-size:14px;
+}
+
+.name{
+    font-size:22px;
+    font-weight:bold;
+}
+
+.bot{
+    color:#0066cc;
+    font-weight:bold;
+}
+
+.user{
+    color:#008000;
+    font-weight:bold;
+}
+
+.danger{
+    color:red;
+    font-weight:bold;
+}
+
+.injury{
+    color:orange;
+    font-weight:bold;
+}
+
+.safe{
+    color:green;
+    font-weight:bold;
+}
+
+pre{
+    white-space:pre-wrap;
+    font-size:18px;
+}
+
+a{
+    text-decoration:none;
+    color:blue;
+    font-weight:bold;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h1>LINE LOG</h1>
+
+{% for log in logs %}
+
+<div class="card">
+
+<div class="time">
+{{ log.created_at|date:"Y-m-d H:i" }}
+</div>
+
+<div class="name">
+{{ log.user.name|default:log.user.user_id }}
+</div>
+<p><strong>地域：</strong>{{ log.user.region }}</p>
+
+<p>
+
+種類：
+
+{% if log.message_type == "location" %}
+📍 GPS
+{% else %}
+💬 メッセージ
+{% endif %}
+
+</p>
+
+{% if log.sender == "BOT" %}
+<pre class="bot">{{ log.content }}</pre>
+
+{% elif "危険" in log.content %}
+<pre class="danger">{{ log.content }}</pre>
+
+{% elif "ケガ" in log.content %}
+<pre class="injury">{{ log.content }}</pre>
+
+{% elif "無事" in log.content %}
+<pre class="safe">{{ log.content }}</pre>
+
+{% else %}
+<pre class="user">{{ log.content }}</pre>
+
+{% endif %}
+
+{% if log.message_type == "location" %}
+
+<a href="https://www.google.com/maps?q={{ log.content|cut:'緯度:'|cut:'経度:' }}"
+target="_blank">
+
+📍 GoogleMapを見る
+
+</a>
+
+{% endif %}
+
+</div>
+
+{% endfor %}
+
+</body>
+</html>

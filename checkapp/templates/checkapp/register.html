@@ -69,6 +69,19 @@
 ```
 <h1>組合員登録</h1>
 
+{% if error %}
+<div style="
+    background:#ffebee;
+    color:#c62828;
+    padding:15px;
+    border-radius:8px;
+    margin-bottom:20px;
+    text-align:center;
+    font-weight:bold;
+    ">
+{{ error }}
+</div>
+{% endif %}
 <form method="POST">
 
     {% csrf_token %}

@@ -36,6 +36,11 @@ class LineUser(models.Model):
         blank=True,
         null=True
     )
+    # 送信者（BOT または USER）
+    sender = models.CharField(
+    max_length=10,
+    default="USER"
+    )
 
     # 会話状態
     step = models.CharField(
