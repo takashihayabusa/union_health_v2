@@ -36,11 +36,13 @@ class LineUser(models.Model):
         blank=True,
         null=True
     )
-    # 送信者（BOT または USER）
-    sender = models.CharField(
-    max_length=10,
-    default="USER"
+    # 電話番号
+    phone = models.CharField(
+        max_length=20,
+        blank=True,
+        null=True
     )
+    
 
     # 会話状態
     step = models.CharField(
@@ -78,6 +80,11 @@ class LineLog(models.Model):
     user = models.ForeignKey(
         LineUser,
         on_delete=models.CASCADE
+    )
+    # USER または BOT
+    sender = models.CharField(
+        max_length=10,
+        default="USER"
     )
 
     # メッセージ種類
