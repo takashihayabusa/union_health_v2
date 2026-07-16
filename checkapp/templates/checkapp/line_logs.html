@@ -70,6 +70,44 @@ a{
     color:blue;
     font-weight:bold;
 }
+.top-buttons{
+    text-align:center;
+    margin-bottom:25px;
+}
+
+.excel-btn{
+    display:inline-block;
+    padding:12px 25px;
+    background:#2e7d32;
+    color:white;
+    text-decoration:none;
+    border-radius:8px;
+    font-size:18px;
+    font-weight:bold;
+}
+
+.excel-btn:hover{
+    background:#1b5e20;
+}
+.delete-btn{
+
+    display:inline-block;
+    padding:12px 25px;
+    background:#c62828;
+    color:white;
+    text-decoration:none;
+    border-radius:8px;
+    font-size:18px;
+    font-weight:bold;
+    margin-left:15px;
+
+}
+
+.delete-btn:hover{
+
+    background:#b71c1c;
+
+}
 
 </style>
 
@@ -78,6 +116,21 @@ a{
 <body>
 
 <h1>LINE LOG</h1>
+<div class="top-buttons">
+
+    <a href="{% url 'export_logs' %}" class="excel-btn">
+        📄 Excelへ保存
+    </a>
+
+    <a href="{% url 'delete_logs' %}"
+        class="delete-btn"
+        onclick="return confirm('Excelへ保存しましたか？\nLINE LOGを削除しますか？');">
+
+        🗑 LOG削除
+
+    </a>
+
+</div>
 
 {% for log in logs %}
 

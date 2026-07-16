@@ -52,7 +52,42 @@ tr:nth-child(even){
 .back:hover{
     background:#2e7d32;
 }
+.delete{
 
+    display:inline-block;
+    margin-top:20px;
+    margin-left:20px;
+    padding:12px 20px;
+    background:#d32f2f;
+    color:white;
+    text-decoration:none;
+    border-radius:8px;
+
+}
+
+.delete:hover{
+
+    background:#b71c1c;
+
+}
+.delete-all{
+
+    display:inline-block;
+    margin-top:20px;
+    margin-left:20px;
+    padding:12px 20px;
+    background:#8B0000;
+    color:white;
+    text-decoration:none;
+    border-radius:8px;
+
+}
+
+.delete-all:hover{
+
+    background:#5a0000;
+
+}
 </style>
 
 </head>
@@ -97,6 +132,16 @@ tr:nth-child(even){
 
 <a href="{% url 'home' %}" class="back">
 ホームへ戻る
+</a>
+<a href="{% url 'clear_test_users' %}"
+    class="delete"
+    onclick="return confirm('Web登録したテストデータを削除しますか？');">
+    Web登録削除
+</a>
+<a href="{% url 'clear_all_users' %}"
+    class="delete-all"
+    onclick="return confirm('本当に全登録者を削除しますか？この操作は元に戻せません。');">
+    全登録者削除
 </a>
 
 </body>

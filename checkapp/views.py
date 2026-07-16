@@ -1,12 +1,19 @@
-from django.shortcuts import render
+from django.shortcuts import render,redirect
 from django.http import HttpResponse
+from openpyxl import Workbook
 from django.views.decorators.csrf import csrf_exempt
+from openpyxl.styles import Font, PatternFill, Alignment
 
 from linebot import LineBotApi, WebhookHandler
 from linebot.models import *
 
 from django.conf import settings
 from .models import LineUser, LineLog
+
+from openpyxl.styles import PatternFill, Font
+from datetime import datetime
+import re
+
 
 print("CHECKAPP 起動")
 
@@ -92,11 +99,24 @@ def register(request):
             }
         )
 
-        return render(
-            request,
-            "checkapp/register_complete.html"
+        line_bot_api.push_message(
+            user_id,
+            TextSendMessage(
+                text=(
+                    "📢 マルキョウユニオンLINEホームページ\n\n"
+                    "登録ありがとうございます。\n"
+                    "ホームページはこちらからご利用ください。\n\n"
+                    "https://takashihayabusa.github.io/union-demo-2026-marukyo-private-site01/"
+                )
+            )
         )
 
+        # 登録後だけホームページへ移動
+        return redirect(
+            "https://takashihayabusa.github.io/union-demo-2026-marukyo-private-site01/"
+        )
+
+    # GETのときは登録画面を表示
     return render(
         request,
         "checkapp/register.html",
@@ -222,6 +242,21 @@ def emergency_send(request):
 
     return HttpResponse("緊急生存確認を送信しました")
 
+
+
+def clear_test_users(request):
+
+    LineUser.objects.filter(
+        user_id__startswith="web_"
+    ).delete()
+
+    return redirect("/users/")
+def clear_all_users(request):
+
+    LineUser.objects.all().delete()
+
+    return redirect("/users/")
+
 # -------------------------
 # Callback
 # -------------------------
@@ -241,6 +276,7 @@ def callback(request):
 @handler.add(FollowEvent)
 def handle_follow(event):
 
+
     user_id = event.source.user_id
 
     LineUser.objects.get_or_create(
@@ -256,7 +292,7 @@ def handle_follow(event):
         TextSendMessage(
             text=
             "友だち追加ありがとうございます。\n\n"
-            "下記の登録ページから\n"
+            "下記の登録ページから\n\n"
             "名前と地域を登録してください。\n\n"
             f"{register_url}"
         )
@@ -769,6 +805,7 @@ def handle_location(event):
         message_type="location",
         content=gps_text
     )
+    
 
     # 電話番号入力待ち
     user.step = "wait_emergency_phone"
@@ -800,3 +837,119 @@ def line_logs(request):
             "logs": logs,
         }
     )
+
+
+def export_logs_excel(request):
+
+    wb = Workbook()
+    red_fill = PatternFill(
+        fill_type="solid",
+        fgColor="FF0000"
+    )
+
+    blue_fill = PatternFill(
+        fill_type="solid",
+        fgColor="0066CC"
+    )
+
+    white_font = Font(
+        color="FFFFFF",
+        bold=True
+    )
+
+    ws = wb.active
+
+    ws.title = "LINE LOG"
+
+
+    # 見出し
+    ws.append([
+        "日時",
+        "名前",
+        "地域",
+        "送信者",
+        "種類",
+        "内容"
+    ])
+
+    # 見出しを赤にする
+    for cell in ws[1]:
+        cell.fill = red_fill
+        cell.font = white_font
+    # LINE LOG を取得
+    logs = LineLog.objects.select_related("user").order_by("created_at")
+
+    for log in logs:
+
+        ws.append([
+            log.created_at.strftime("%Y-%m-%d %H:%M"),
+            log.user.name,
+            log.user.region,
+            log.sender,
+            log.message_type,
+            log.content
+            ])
+        print(log.message_type)
+        current_row = ws.max_row
+        
+        content = str(ws.cell(row=current_row, column=6).value)
+
+        # 危険
+        if "危険" in content:
+
+            for col in range(1, 7):
+                cell = ws.cell(row=current_row, column=col)
+                cell.fill = red_fill
+                cell.font = white_font
+
+        # ケガ
+        elif "ケガ" in content:
+
+            orange_fill = PatternFill(
+                fill_type="solid",
+                fgColor="FFA500"
+            )
+
+            for col in range(1, 7):
+                cell = ws.cell(row=current_row, column=col)
+                cell.fill = orange_fill
+
+        # 電話番号
+        elif content.isdigit() and len(content) >= 10:
+
+            for col in range(1, 7):
+                cell = ws.cell(row=current_row, column=col)
+                cell.fill = blue_fill
+                cell.font = white_font
+
+        # GPS
+        # GPS
+        elif log.message_type in ["GPS", "location"]:
+
+                gps_fill = PatternFill(
+                fill_type="solid",
+                fgColor="CCFFFF"
+                )
+
+                for col in range(1, 7):
+                    cell = ws.cell(row=current_row, column=col)
+                    cell.fill = gps_fill
+
+
+    response = HttpResponse(
+        content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
+
+    response["Content-Disposition"] = (
+        'attachment; filename="LINE_LOG.xlsx"'
+    )
+
+    wb.save(response)
+
+    return response
+
+def delete_logs(request):
+
+    LineLog.objects.all().delete()
+
+    return redirect("line_logs")
