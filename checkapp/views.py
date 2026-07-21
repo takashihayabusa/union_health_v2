@@ -99,22 +99,25 @@ def register(request):
             }
         )
 
-        line_bot_api.push_message(
-            user_id,
-            TextSendMessage(
-                text=(
-                    "📢 マルキョウユニオンLINEホームページ\n\n"
-                    "登録ありがとうございます。\n"
-                    "ホームページはこちらからご利用ください。\n\n"
-                    "https://takashihayabusa.github.io/union-demo-2026-marukyo-private-site01/"
+        try:
+            line_bot_api.push_message(
+                user_id,
+                TextSendMessage(
+                    text=(
+                        "📢 マルキョウユニオンLINEホームページ\n\n"
+                        "登録ありがとうございます。\n"
+                        "マルキョウユニオンLINEホームページはこちらからご利用ください。"
+                    )
                 )
             )
-        )
+            print("LINE送信成功")
+        except Exception as e:
+            print("LINE送信失敗:", e)
 
-        # 登録後だけホームページへ移動
-        return redirect(
-            "https://takashihayabusa.github.io/union-demo-2026-marukyo-private-site01/"
-        )
+            return render(
+                request,
+                    "checkapp/register_complete.html"
+                    )
 
     # GETのときは登録画面を表示
     return render(
