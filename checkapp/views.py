@@ -144,16 +144,16 @@ def register(request):
             "checkapp/register_complete.html"
             )
 
-        else:
-            print("フォームエラー")
-            print(form.errors)
+    else:
+        print("フォームエラー")
+        print(form.errors)
 
-            return render(
-                request,
-                "checkapp/account_register.html",
-                {
-                    "form": form,
-                    "user_id": user_id,
+        return render(
+            request,
+            "checkapp/account_register.html",
+            {
+                "form": form,
+                "user_id": user_id,
                 }
             )
 
