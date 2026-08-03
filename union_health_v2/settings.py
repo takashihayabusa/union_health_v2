@@ -127,16 +127,17 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
 
-STATIC_URL = "static/"
+STATIC_URL = "/static/"
 
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'checkapp/static'),
 ]
+STATIC_ROOT = BASE_DIR / "staticfiles"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-LINE_CHANNEL_ACCESS_TOKEN = 'seS8M4BYO5pzMz5ef8O7MUXXuQGMNrvtJBJ5/0MYrFGpCrDGtdGaerRrOFYRjVP/V89ESH/0LddyOmB01AKXdTGZc/nC3vWNlUkE4CSkb2zCjEaxLbYaxY7h/iziON1omIGgRVBgIKArfSxyaQeLDAdB04t89/1O/w1cDnyilFU='
-LINE_CHANNEL_SECRET = '950d8a6f5b04919e11ed781ce6efaa56'
+LINE_CHANNEL_ACCESS_TOKEN = 'OTg+S8gklT+kipZaaH2QtS651fmUKytCQrFDb6vsNfW6rvke6UvXh6f3R/reSAkLV89ESH/0LddyOmB01AKXdTGZc/nC3vWNlUkE4CSkb2xHMp0cLmJ1n63VHhE4F0w/EPpLZajtdM0eOBcigQiadQdB04t89/1O/w1cDnyilFU='
+LINE_CHANNEL_SECRET = 'c92bc30b582fa19cd35529f72f41a343'

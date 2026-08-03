@@ -1,5 +1,8 @@
-from django.shortcuts import render,redirect
+from django.contrib.auth.hashers import check_password
+from .forms import AccountRegisterForm, LoginForm
+from django.shortcuts import render,redirect,get_object_or_404
 from django.http import HttpResponse
+from django.contrib.auth.hashers import make_password
 from openpyxl import Workbook
 from django.views.decorators.csrf import csrf_exempt
 from openpyxl.styles import Font, PatternFill, Alignment
@@ -8,7 +11,7 @@ from linebot import LineBotApi, WebhookHandler
 from linebot.models import *
 
 from django.conf import settings
-from .models import LineUser, LineLog
+from .models import LineUser, LineLog, Account
 
 from openpyxl.styles import PatternFill, Font
 from datetime import datetime
@@ -61,13 +64,16 @@ def user_list(request):
         .order_by("-created_at")
     )
 
+    # GETのときは新しい登録画面を表示
+
     return render(
         request,
-        "checkapp/user_list.html",
+        "checkapp/account_register.html",
         {
-            "users": users,
+        "form": form,
+        "user_id": user_id,
         }
-    )
+)
 # -------------------------
 # 登録
 # -------------------------
@@ -78,56 +84,90 @@ def register(request):
 
     if request.method == "POST":
 
-        name = request.POST.get("name", "").strip()
-        region = request.POST.get("region", "").strip()
+        print("★★ 新しい register が実行されました ★★")
 
-        if not name or not region:
+        form = AccountRegisterForm(request.POST)
+
+        if form.is_valid():
+            print("フォームOK")
+
+            name = form.cleaned_data["name"]
+            region = form.cleaned_data["region"]
+            login_id = form.cleaned_data["login_id"]
+            birth_date = form.cleaned_data["birth_date"]
+            password = form.cleaned_data["password1"]
+
+            # ここでAccountへ保存
+            Account.objects.create(
+                login_id=login_id,
+                password=make_password(password),
+                name=name,
+                area=region,
+                birth_date=birth_date,
+            )
+
+            # ここでLineUserへ保存
+            LineUser.objects.update_or_create(
+                user_id=user_id,
+                defaults={
+                    "name": name,
+                    "region": region,
+                }
+            )
+
+        try:
+            line_bot_api.push_message(
+            user_id,
+            TextSendMessage(
+                text=(
+                    "📢 マルキョウユニオンLINEホームページ\n\n"
+                    "登録ありがとうございます。\n"
+                    "マルキョウユニオンLINEホームページはこちらからご利用ください。\n\n"
+                    "https://lin.ee/zHqTDDZ"
+                    )
+                )
+            )
+        except Exception as e:
+                print(f"LINE送信エラー: {e}")
+        
+        if False:
+            line_bot_api.push_message(
+            user_id,
+            TextSendMessage(
+                text="..."
+            )
+    )
+        #登録後だけホームページへ移動
+        # 登録後は完了画面を表示
+        return render(
+            request,
+            "checkapp/register_complete.html"
+            )
+
+        else:
+            print("フォームエラー")
+            print(form.errors)
+
             return render(
                 request,
-                "checkapp/register.html",
+                "checkapp/account_register.html",
                 {
-                    "error": "名前と地域を入力してください。",
+                    "form": form,
                     "user_id": user_id,
                 }
             )
 
-        LineUser.objects.update_or_create(
-            user_id=user_id,
-            defaults={
-                "name": name,
-                "region": region,
-            }
-        )
-
-        try:
-            line_bot_api.push_message(
-                user_id,
-                TextSendMessage(
-                    text=(
-                        "📢 マルキョウユニオンLINEホームページ\n\n"
-                        "登録ありがとうございます。\n"
-                        "マルキョウユニオンLINEホームページはこちらからご利用ください。"
-                    )
-                )
-            )
-            print("LINE送信成功")
-        except Exception as e:
-            print("LINE送信失敗:", e)
-
-            return render(
-                request,
-                    "checkapp/register_complete.html"
-                    )
-
     # GETのときは登録画面を表示
+    form = AccountRegisterForm()
+
     return render(
         request,
-        "checkapp/register.html",
+        "checkapp/account_register.html",
         {
+            "form": form,
             "user_id": user_id,
         }
     )
-
 # -------------------------
 # 健康チェック送信
 # -------------------------
@@ -138,6 +178,7 @@ def send_health_check(request):
     )
 
     for user in users:
+        print("登録ユーザー:", user.user_id)
 
         user.step = "health_start"
         user.save()
@@ -183,8 +224,6 @@ def send_health_check(request):
             print(e)
 
     return HttpResponse("健康チェック送信完了")
-
-
 # -------------------------
 # 緊急生存確認
 # -------------------------
@@ -956,3 +995,193 @@ def delete_logs(request):
     LineLog.objects.all().delete()
 
     return redirect("line_logs")
+
+from .forms import AccountRegisterForm
+
+
+def account_register(request):
+
+    if request.method == "POST":
+
+        form = AccountRegisterForm(request.POST)
+
+        if form.is_valid():
+
+            Account.objects.create(
+
+                name=form.cleaned_data["name"],
+                area=form.cleaned_data["region"],
+                login_id=form.cleaned_data["login_id"],
+                birth_date=form.cleaned_data["birth_date"],
+                password=make_password(
+                    form.cleaned_data["password1"]
+                ),
+
+            )
+
+            return render(
+                request,
+                "checkapp/account_register_complete.html",
+            )
+
+    else:
+
+        form = AccountRegisterForm()
+
+    return render(
+        request,
+        "checkapp/account_register.html",
+        {
+            "form": form,
+        },
+    )
+
+def login_view(request):
+
+    if request.method == "POST":
+
+        form = LoginForm(request.POST)
+
+        if form.is_valid():
+
+            account = Account.objects.filter(
+                login_id=form.cleaned_data["login_id"]
+            ).first()
+
+            if account:
+
+                if check_password(
+                    form.cleaned_data["password"],
+                    account.password,
+                ):
+
+                    return redirect("/")
+
+            form.add_error(
+                None,
+                "社員番号またはパスワードが違います。"
+            )
+
+    else:
+
+        form = LoginForm()
+
+    return render(
+        request,
+        "checkapp/login.html",
+        {
+            "form": form,
+        },
+    )
+
+
+
+# =====================================
+# ログイン
+# =====================================
+def login_view(request):
+
+    if request.method == "POST":
+
+        form = LoginForm(request.POST)
+
+        if form.is_valid():
+
+            account = Account.objects.filter(
+                login_id=form.cleaned_data["login_id"]
+            ).first()
+
+            if account:
+
+                if check_password(
+                    form.cleaned_data["password"],
+                    account.password,
+                ):
+
+                    return redirect("https://lin.ee/zHqTDDZ")
+
+            form.add_error(
+                None,
+                "社員番号またはパスワードが違います。"
+            )
+
+    else:
+
+        form = LoginForm()
+
+    return render(
+        request,
+        "checkapp/login.html",
+        {
+            "form": form,
+        }
+    )
+# =====================================
+# アカウント一覧
+# =====================================
+def account_list(request):
+
+    accounts = Account.objects.all().order_by("login_id")
+
+    return render(
+        request,
+        "checkapp/account_list.html",
+        {
+            "accounts": accounts,
+        }
+    )
+    
+def account_edit(request, pk):
+
+    account = get_object_or_404(
+        Account,
+        pk=pk,
+    )
+
+    if request.method == "POST":
+
+        account.name = request.POST.get("name")
+
+        account.area = request.POST.get("area")
+
+        account.save()
+
+        return redirect("account_list")
+
+    return render(
+        request,
+        "checkapp/account_edit.html",
+        {
+            "account": account,
+        },
+    )
+# =====================================
+# 利用停止・利用再開
+# =====================================
+def account_toggle(request, pk):
+
+    account = get_object_or_404(
+        Account,
+        pk=pk,
+    )
+
+    account.is_active = not account.is_active
+
+    account.save()
+
+    return redirect("account_list")
+
+
+# =====================================
+# アカウント削除
+# =====================================
+def account_delete(request, pk):
+
+    account = get_object_or_404(
+        Account,
+        pk=pk,
+    )
+
+    account.delete()
+
+    return redirect("account_list")

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>組合員一覧</title>
+</head>
+<body>
+
+<h1>組合員一覧</h1>
+
+<table border="1" cellpadding="5">
+
+    <tr>
+        <th>社員番号</th>
+        <th>氏名</th>
+        <th>生活地区</th>
+        <th>利用状態</th>
+        <th>編集</th>
+        <th>削除</th>
+    </tr>
+
+    {% for account in accounts %}
+
+    <tr>
+
+        <td>{{ account.login_id }}</td>
+    
+        <td>{{ account.name }}</td>
+    
+        <td>{{ account.area }}</td>
+    
+        <td>
+            {% if account.is_active %}
+                利用中
+            {% else %}
+                利用停止
+            {% endif %}
+        </td>
+    
+        <td>
+            <a href="{% url 'account_edit' account.pk %}">
+                編集
+            </a>
+        </td>
+        
+        <td>
+            <a href="{% url 'account_toggle' account.pk %}">
+                {% if account.is_active %}
+                    利用停止
+                {% else %}
+                    利用再開
+                {% endif %}
+            </a>
+        </td>
+        
+        <td>
+            <a href="{% url 'account_delete' account.pk %}"
+                onclick="return confirm('本当に削除しますか？')">
+                削除
+            </a>
+        </td>
+    
+    
+    </tr>
+
+    {% empty %}
+
+    <tr>
+        <td colspan="4">
+            登録者はいません。
+        </td>
+    </tr>
+
+    {% endfor %}
+
+</table>
+
+</body>
+</html>

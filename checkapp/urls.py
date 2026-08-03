@@ -9,6 +9,8 @@ urlpatterns = [
     path("users/", views.user_list, name="user_list"),
 
     path("register/", views.register, name="register"),
+    
+    path("login/", views.login_view, name="login"),
 
     path("send/", views.send_health_check, name="send_health_check"),
 
@@ -36,4 +38,35 @@ urlpatterns = [
     views.delete_logs,
     name="delete_logs",
     ),
+    path(
+    "account-register/",
+    views.account_register,
+    name="account_register",
+    ),
+    path(
+    "account-register/",
+    views.account_register,
+    name="account_register",
+    ),
+    path(
+    "accounts/",
+    views.account_list,
+    name="account_list",
+    ),
+    path(
+    "accounts/<int:pk>/edit/",
+    views.account_edit,
+    name="account_edit",
+    ),
+    path(
+    "accounts/<int:pk>/toggle/",
+    views.account_toggle,
+    name="account_toggle",
+    ),
+
+    path(
+    "accounts/<int:pk>/delete/",
+    views.account_delete,
+    name="account_delete",
+),
     ] 

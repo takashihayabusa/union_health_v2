@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <title>組合員編集</title>
+</head>
+
+<body>
+
+<h1>組合員編集</h1>
+
+<form method="post">
+
+    {% csrf_token %}
+
+    <p>
+        社員番号：{{ account.login_id }}
+    </p>
+
+    <p>
+        氏名<br>
+        <input
+            type="text"
+            name="name"
+            value="{{ account.name }}"
+        >
+    </p>
+
+    <p>
+        生活地区<br>
+
+        <select name="area">
+
+            <option value="北九州" {% if account.area == "北九州" %}selected{% endif %}>北九州</option>
+
+            <option value="福岡" {% if account.area == "福岡" %}selected{% endif %}>福岡</option>
+
+            <option value="大分" {% if account.area == "大分" %}selected{% endif %}>大分</option>
+
+            <option value="熊本" {% if account.area == "熊本" %}selected{% endif %}>熊本</option>
+
+            <option value="長崎" {% if account.area == "長崎" %}selected{% endif %}>長崎</option>
+
+            <option value="佐世保" {% if account.area == "佐世保" %}selected{% endif %}>佐世保</option>
+
+        </select>
+
+    </p>
+
+    <button type="submit">
+
+        保存
+
+    </button>
+
+</form>
+
+<p>
+
+    <a href="{% url 'account_list' %}">
+
+        ← 一覧へ戻る
+
+    </a>
+
+</p>
+
+</body>
+</html>

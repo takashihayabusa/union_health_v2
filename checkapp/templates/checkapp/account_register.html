@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+
+<html lang="ja">
+
+<head>
+
+<meta charset="UTF-8">
+
+<title>組合員登録</title>
+<style>
+
+    body{
+        font-family: "Yu Gothic", sans-serif;
+        margin:40px;
+    }
+    
+    input,
+    select{
+        background-color:#f5f9ff;
+        border:1px solid #4a90e2;
+        border-radius:6px;
+        padding:8px;
+        font-size:16px;
+    }
+    
+    input:focus,
+    select:focus{
+        background:#fffde7;
+        border:2px solid #ff9800;
+        outline:none;
+    }
+    
+    button{
+        background:#1976d2;
+        color:white;
+        border:none;
+        padding:10px 25px;
+        font-size:16px;
+        border-radius:8px;
+        cursor:pointer;
+    }
+    
+    button:hover{
+        background:#1565c0;
+    }
+    
+    </style>
+
+</head>
+
+<body>
+
+    <h1>組合員登録</h1>
+
+    <p>
+    このシステムは組合員専用です。<br>
+    登録後は社員番号と4桁の暗証番号でログインします。
+    </p>
+    
+    <hr>
+    
+    <p>
+    <strong>【入力方法】</strong>
+    </p>
+    
+    <ul>
+        <li>氏名：本名を入力してください。</li>
+        <li>所属地区：所属地区を選択してください。</li>
+        <li>社員番号（ログインID）：会社の社員番号5桁を入力してください。<br>
+            例：12345
+        </li>
+        <li>生年月日：本人確認のため入力してください。<br>
+            例：1990-04-15
+        </li>
+        <li>4桁の暗証番号：数字4桁で入力してください。<br>
+            例：1010 0803 1234
+        </li>
+        <li>確認用暗証番号：もう一度同じ4桁の数字を入力してください。</li>
+    </ul>
+    
+    <hr>
+    
+    <form method="post">
+    
+        {% csrf_token %}
+    
+        <p>{{ form }}</p>
+    
+        <button type="submit">
+            登録する
+        </button>
+    
+    </form>
+        <script>
+            document.querySelectorAll("input").forEach(function(input){
+        
+                input.addEventListener("input", function(){
+        
+                    this.value = this.value.replace(/[０-９]/g, function(s){
+                        return String.fromCharCode(s.charCodeAt(0)-0xFEE0);
+                    });
+        
+                });
+        
+            });
+        </script>
+    </form>
+
+    <script>
+    document.querySelectorAll("input").forEach(function(input){
+    
+        input.addEventListener("input", function(){
+    
+            // 全角数字 → 半角数字
+            this.value = this.value.replace(/[０-９]/g, function(s){
+                return String.fromCharCode(s.charCodeAt(0)-0xFEE0);
+            });
+    
+            // 社員番号・生年月日・パスワードは数字だけ
+            if (
+                this.name === "login_id" ||
+                this.name === "birth_date" ||
+                this.name === "password1" ||
+                this.name === "password2"
+            ){
+                this.value = this.value.replace(/[^0-9]/g, "");
+            }
+    
+        });
+    
+    });
+    </script>
+    
+    </body>
+    </html>
+</body>
+
+</html>

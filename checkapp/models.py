@@ -100,7 +100,55 @@ class LineLog(models.Model):
     created_at = models.DateTimeField(
         auto_now_add=True
     )
+    # =====================================
+# ログインアカウント
+# =====================================
 
-    def __str__(self):
+class Account(models.Model):
 
-        return f"{self.user} - {self.message_type}"
+    AREA_CHOICES = [
+        ("北九州", "北九州"),
+        ("福岡", "福岡"),
+        ("大分", "大分"),
+        ("熊本", "熊本"),
+        ("長崎", "長崎"),
+        ("佐世保", "佐世保"),
+    ]
+
+    # 氏名
+    name = models.CharField(
+        max_length=100
+    )
+
+    # 生活地区
+    area = models.CharField(
+        max_length=20,
+        choices=AREA_CHOICES
+    )
+
+    # 社員番号（ログインID）
+    login_id = models.CharField(
+        max_length=6,
+        unique=True
+    )
+
+    # 生年月日
+    birth_date = models.DateField()
+
+    # パスワード
+    password = models.CharField(
+        max_length=128
+    )
+
+    # 利用可能か（退職者は False）
+    is_active = models.BooleanField(
+        default=True
+    )
+
+    # 登録日時
+    created_at = models.DateTimeField(
+        auto_now_add=True
+    )
+
+def __str__(self):
+    return f"{self.login_id} {self.name}"
