@@ -33,7 +33,7 @@
 
 <h1>地域別 一斉送信</h1>
 
-<form method="POST">
+<form method="POST" action="{% url 'send_health_check' %}">
 
     {% csrf_token %}
 
@@ -41,13 +41,18 @@
 
     <select name="region">
 
+        <option value="北九州">北九州</option>
+
         <option value="福岡">福岡</option>
+
+        <option value="大分">大分</option>
 
         <option value="熊本">熊本</option>
 
         <option value="長崎">長崎</option>
 
-        <option value="佐賀">佐賀</option>
+        <option value="佐世保">佐世保</option>
+
 
     </select>
 

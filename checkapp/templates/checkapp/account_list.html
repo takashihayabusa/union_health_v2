@@ -13,10 +13,10 @@
     <tr>
         <th>社員番号</th>
         <th>氏名</th>
-        <th>生活地区</th>
+        <th>生年月日</th>
+        <th>地区</th>
         <th>利用状態</th>
         <th>編集</th>
-        <th>削除</th>
     </tr>
 
     {% for account in accounts %}
@@ -26,6 +26,8 @@
         <td>{{ account.login_id }}</td>
     
         <td>{{ account.name }}</td>
+
+        <td>{{ account.birth_date }}</td>
     
         <td>{{ account.area }}</td>
     

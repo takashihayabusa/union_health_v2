@@ -55,9 +55,9 @@ class AccountRegisterForm(forms.Form):
         max_length=4,
         widget=forms.PasswordInput(
             attrs={
-                "inputmode": "numeric",
-                "pattern": "[0-9]*",
-                "placeholder": "4桁"
+            "inputmode": "numeric",
+            "pattern": "[0-9]*",
+            "placeholder": "例：0909"
             }
         ),
     )
@@ -70,7 +70,7 @@ class AccountRegisterForm(forms.Form):
             attrs={
                 "inputmode": "numeric",
                 "pattern": "[0-9]*",
-                "placeholder": "4桁"
+                "placeholder": "もう一度入力（例：0909）"
             }
         ),
     )

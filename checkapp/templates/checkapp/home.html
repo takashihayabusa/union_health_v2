@@ -196,16 +196,14 @@
                 健康チェック送信
             </h2>
 
-            <form method="POST" action="{% url 'send_health_check' %}">
+            <form action="{% url 'emergency_region' %}" method="get">
 
                 {% csrf_token %}
-
+            
                 <button type="submit">
-
                     健康チェックを送信
-
                 </button>
-
+            
             </form>
 
         </div>
@@ -215,50 +213,16 @@
 
         <div class="card">
 
-            <h2>
-                緊急生存確認
-            </h2>
+            <h2>緊急生存確認</h2>
+        
+            <form action="{% url 'emergency_region' %}" method="get">
 
-            <form method="POST" action="{% url 'emergency_send' %}">
-
-                {% csrf_token %}
-
-                <label>
-                    地域を選択してください
-                </label>
-
-                <select name="region" required>
-
-                    <option value="">
-                        地域を選択
-                    </option>
-
-                    <option value="福岡">
-                        福岡
-                    </option>
-
-                    <option value="熊本">
-                        熊本
-                    </option>
-
-                    <option value="長崎">
-                        長崎
-                    </option>
-
-                    <option value="佐賀">
-                        佐賀
-                    </option>
-
-                </select>
-
-                <button type="submit">
-
+                <button class="main-btn" type="submit">
                     緊急生存確認を送信
-
                 </button>
-
+            
             </form>
-
+        
         </div>
 
 

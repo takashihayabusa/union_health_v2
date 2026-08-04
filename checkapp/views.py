@@ -89,6 +89,7 @@ def register(request):
         form = AccountRegisterForm(request.POST)
 
         if form.is_valid():
+
             print("フォームOK")
 
             name = form.cleaned_data["name"]
@@ -97,7 +98,7 @@ def register(request):
             birth_date = form.cleaned_data["birth_date"]
             password = form.cleaned_data["password1"]
 
-            # ここでAccountへ保存
+            # Accountへ保存
             Account.objects.create(
                 login_id=login_id,
                 password=make_password(password),
@@ -106,7 +107,7 @@ def register(request):
                 birth_date=birth_date,
             )
 
-            # ここでLineUserへ保存
+            # LineUserへ保存
             LineUser.objects.update_or_create(
                 user_id=user_id,
                 defaults={
@@ -115,49 +116,41 @@ def register(request):
                 }
             )
 
-        try:
-            line_bot_api.push_message(
-            user_id,
-            TextSendMessage(
-                text=(
-                    "📢 マルキョウユニオンLINEホームページ\n\n"
-                    "登録ありがとうございます。\n"
-                    "マルキョウユニオンLINEホームページはこちらからご利用ください。\n\n"
-                    "https://lin.ee/zHqTDDZ"
+            try:
+                line_bot_api.push_message(
+                    user_id,
+                    TextSendMessage(
+                        text=(
+                            "📢 マルキョウユニオンLINEホームページ\n\n"
+                            "登録ありがとうございます。\n"
+                            "マルキョウユニオンLINEホームページはこちらからご利用ください。\n\n"
+                            "https://lin.ee/zHqTDDZ"
+                        )
                     )
                 )
-            )
-        except Exception as e:
+            except Exception as e:
                 print(f"LINE送信エラー: {e}")
-        
-        if False:
-            line_bot_api.push_message(
-            user_id,
-            TextSendMessage(
-                text="..."
-            )
-    )
-        #登録後だけホームページへ移動
-        # 登録後は完了画面を表示
-        return render(
-            request,
-            "checkapp/register_complete.html"
+
+            # 登録後は完了画面
+            return render(
+                request,
+                "checkapp/register_complete.html"
             )
 
-    else:
-        print("フォームエラー")
-        print(form.errors)
+        else:
+            print("フォームエラー")
+            print(form.errors)
 
-        return render(
-            request,
-            "checkapp/account_register.html",
-            {
-                "form": form,
-                "user_id": user_id,
+            return render(
+                request,
+                "checkapp/account_register.html",
+                {
+                    "form": form,
+                    "user_id": user_id,
                 }
             )
 
-    # GETのときは登録画面を表示
+    # GETのときは登録画面
     form = AccountRegisterForm()
 
     return render(
@@ -168,14 +161,23 @@ def register(request):
             "user_id": user_id,
         }
     )
+# ==========================
+# 地域選択画面
+# ==========================
+def region_send(request):
+
+    return render(
+        request,
+        "checkapp/region_send.html"
+    )
 # -------------------------
 # 健康チェック送信
 # -------------------------
 def send_health_check(request):
 
-    users = LineUser.objects.exclude(
-        user_id__startswith="web_"
-    )
+    region = request.POST.get("region")
+
+    users = LineUser.objects.filter(region=region)
 
     for user in users:
         print("登録ユーザー:", user.user_id)
@@ -227,78 +229,7 @@ def send_health_check(request):
 # -------------------------
 # 緊急生存確認
 # -------------------------
-def emergency_send(request):
-
-    users = LineUser.objects.exclude(
-        user_id__startswith="web_"
-    )
-
-    for user in users:
-
-        print("送信先:", user.name, user.user_id)
-        
-        user.step = ""
-        user.save()
-
-        message = TextSendMessage(
-            text=(
-                "【緊急生存確認】\n\n"
-                "現在の状態を選択してください。"
-            ),
-            quick_reply=QuickReply(
-                items=[
-                    QuickReplyButton(
-                        action=MessageAction(
-                            label="無事です",
-                            text="無事です"
-                        )
-                    ),
-                    QuickReplyButton(
-                        action=MessageAction(
-                            label="ケガ",
-                            text="ケガ"
-                        )
-                    ),
-                    QuickReplyButton(
-                        action=MessageAction(
-                            label="危険",
-                            text="危険"
-                        )
-                    ),
-                ]
-            )
-        )
-
-        try:
-            line_bot_api.push_message(
-                user.user_id,
-                message
-            )
-
-            print("送信成功:", user.user_id)
-
-        except Exception as e:
-
-            print("送信失敗:", user.user_id)
-            print(e)
-
-    return HttpResponse("緊急生存確認を送信しました")
-
-
-
-def clear_test_users(request):
-
-    LineUser.objects.filter(
-        user_id__startswith="web_"
-    ).delete()
-
-    return redirect("/users/")
-def clear_all_users(request):
-
-    LineUser.objects.all().delete()
-
-    return redirect("/users/")
-
+users = LineUser.objects.all()
 # -------------------------
 # Callback
 # -------------------------
@@ -1183,5 +1114,40 @@ def account_delete(request, pk):
     )
 
     account.delete()
+    
+def emergency_region(request):
+
+    return render(
+        request,
+        "checkapp/emergency_region.html"
+    )
 
     return redirect("account_list")
+
+def emergency_send(request):
+
+    region = request.POST.get("region")
+
+    users = LineUser.objects.filter(
+        region=region
+    ).exclude(
+        user_id__startswith="web_"
+    )
+
+    # ここには以前動いていた送信処理を書きます
+
+    return HttpResponse("緊急生存確認を送信しました")
+
+def clear_test_users(request):
+
+    LineUser.objects.filter(
+        user_id__startswith="web_"
+    ).delete()
+
+    return redirect("/users/")
+
+def clear_all_users(request):
+
+    LineUser.objects.all().delete()
+
+    return redirect("/users/")

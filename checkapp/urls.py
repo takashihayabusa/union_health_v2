@@ -12,7 +12,11 @@ urlpatterns = [
     
     path("login/", views.login_view, name="login"),
 
-    path("send/", views.send_health_check, name="send_health_check"),
+    path("send/", views.region_send, name="region_send"),
+    
+    path("send_health_check/", views.send_health_check, name="send_health_check"),
+    
+    path("emergency/", views.emergency_region, name="emergency_region"),
 
     path("emergency-send/", views.emergency_send, name="emergency_send"),
 
