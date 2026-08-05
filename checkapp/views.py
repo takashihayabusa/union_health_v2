@@ -48,9 +48,16 @@ def save_line_log(user, sender, message_type, content):
 # -------------------------
 def home(request):
 
+    if "account_id" not in request.session:
+
+        return redirect("/login/")
+
     return render(
         request,
-        "checkapp/home.html"
+        "checkapp/home.html",
+        {
+            "account_name": request.session.get("account_name"),
+        }
     )
 
 # -------------------------
@@ -1024,10 +1031,20 @@ def login_view(request):
 
             if account:
 
-                if check_password(
+                if not account.is_active:
+
+                    form.add_error(
+                        None,
+                        "このアカウントは利用停止になっています。"
+                    )
+
+                elif check_password(
                     form.cleaned_data["password"],
                     account.password,
                 ):
+
+                    request.session["account_id"] = account.id
+                    request.session["account_name"] = account.name
 
                     return redirect("https://lin.ee/zHqTDDZ")
 
