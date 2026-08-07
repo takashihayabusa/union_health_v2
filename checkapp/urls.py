@@ -11,6 +11,8 @@ urlpatterns = [
     path("register/", views.register, name="register"),
     
     path("login/", views.login_view, name="login"),
+    
+    path("logout/", views.logout_view, name="logout"),
 
     path("send/", views.region_send, name="region_send"),
     
@@ -22,16 +24,10 @@ urlpatterns = [
 
     path("line-logs/", views.line_logs, name="line_logs"),
     
-    path(
-        "clear-test-users/",
-        views.clear_test_users,
-        name="clear_test_users",
-    ),
-    path(
-        "clear-all-users/",
-        views.clear_all_users,
-        name="clear_all_users",
-    ),
+    path("clear-test-users/", views.clear_test_users, name="clear_test_users"),
+    
+    path("clear-all-users/",views.clear_all_users,name="clear_all_users"),
+    
     path(
     "export-logs/",
     views.export_logs_excel,
@@ -41,11 +37,6 @@ urlpatterns = [
     "delete-logs/",
     views.delete_logs,
     name="delete_logs",
-    ),
-    path(
-    "account-register/",
-    views.account_register,
-    name="account_register",
     ),
     path(
     "account-register/",

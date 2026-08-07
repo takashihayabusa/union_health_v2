@@ -16,13 +16,16 @@ from .models import LineUser, LineLog, Account
 from openpyxl.styles import PatternFill, Font
 from datetime import datetime
 import re
+from .services import send_health_check_to_all
 
 
 print("CHECKAPP 起動")
 
 
-line_bot_api = LineBotApi(settings.LINE_CHANNEL_ACCESS_TOKEN)
-handler = WebhookHandler(settings.LINE_CHANNEL_SECRET)
+from .line_api import (
+    line_bot_api,
+    handler,
+)
 # =====================================
 # LINE LOG 共通保存
 # =====================================
@@ -46,19 +49,14 @@ def save_line_log(user, sender, message_type, content):
 # -------------------------
 # 表紙
 # -------------------------
+from django.shortcuts import redirect
+
 def home(request):
 
     if "account_id" not in request.session:
+        return redirect("login")
 
-        return redirect("/login/")
-
-    return render(
-        request,
-        "checkapp/home.html",
-        {
-            "account_name": request.session.get("account_name"),
-        }
-    )
+    return render(request, "checkapp/home.html")
 
 # -------------------------
 # ユーザー一覧
@@ -180,59 +178,15 @@ def region_send(request):
 # -------------------------
 # 健康チェック送信
 # -------------------------
+from .services import send_health_check_to_all
+
 def send_health_check(request):
 
-    region = request.POST.get("region")
+    success, error = send_health_check_to_all()
 
-    users = LineUser.objects.filter(region=region)
-
-    for user in users:
-        print("登録ユーザー:", user.user_id)
-
-        user.step = "health_start"
-        user.save()
-
-        message = TextSendMessage(
-            text=(
-                "【健康チェック】\n\n"
-                "現在の体調を教えてください。"
-            ),
-            quick_reply=QuickReply(
-                items=[
-                    QuickReplyButton(
-                        action=MessageAction(
-                            label="元気です",
-                            text="元気です"
-                        )
-                    ),
-                    QuickReplyButton(
-                        action=MessageAction(
-                            label="少し疲れています",
-                            text="少し疲れています"
-                        )
-                    ),
-                    QuickReplyButton(
-                        action=MessageAction(
-                            label="かなり辛いです",
-                            text="かなり辛いです"
-                        )
-                    ),
-                ]
-            )
-        )
-
-        try:
-            line_bot_api.push_message(
-                user.user_id,
-                message
-            )
-            print("送信成功:", user.user_id)
-
-        except Exception as e:
-            print("送信失敗:", user.user_id)
-            print(e)
-
-    return HttpResponse("健康チェック送信完了")
+    return HttpResponse(
+        f"健康チェック送信完了 成功:{success}件 失敗:{error}件"
+    )
 # -------------------------
 # 緊急生存確認
 # -------------------------
@@ -974,44 +928,6 @@ def account_register(request):
         },
     )
 
-def login_view(request):
-
-    if request.method == "POST":
-
-        form = LoginForm(request.POST)
-
-        if form.is_valid():
-
-            account = Account.objects.filter(
-                login_id=form.cleaned_data["login_id"]
-            ).first()
-
-            if account:
-
-                if check_password(
-                    form.cleaned_data["password"],
-                    account.password,
-                ):
-
-                    return redirect("/")
-
-            form.add_error(
-                None,
-                "社員番号またはパスワードが違います。"
-            )
-
-    else:
-
-        form = LoginForm()
-
-    return render(
-        request,
-        "checkapp/login.html",
-        {
-            "form": form,
-        },
-    )
-
 
 
 # =====================================
@@ -1046,7 +962,7 @@ def login_view(request):
                     request.session["account_id"] = account.id
                     request.session["account_name"] = account.name
 
-                    return redirect("https://lin.ee/zHqTDDZ")
+                    return redirect("/")
 
             form.add_error(
                 None,
@@ -1064,6 +980,14 @@ def login_view(request):
             "form": form,
         }
     )
+
+
+
+def logout_view(request):
+
+    request.session.flush()
+
+    return redirect("login")
 # =====================================
 # アカウント一覧
 # =====================================
