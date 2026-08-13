@@ -1,0 +1,826 @@
+/* ==========================================
+   マルキョウユニオン style.css
+========================================== */
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family:"Yu Gothic","Hiragino Sans",sans-serif;
+    background:#eeeeee;
+    color:#333;
+    line-height:1.6;
+   　margin:0;
+    padding:0;
+}
+
+/* ==========================================
+   ロゴ
+========================================== */
+
+.logo{
+    width:100%;
+    background:#fff;
+    text-align:center;
+    padding:0;
+    margin:0;
+    line-height:0;
+}
+
+.logo img{
+    display:block;
+    width:100%;
+    max-width:1200px;
+    height:auto;
+    margin:0 auto;
+}
+
+
+/* ==========================================
+   メイン画像
+========================================== */
+
+.main-image{
+    width:100%;
+    margin:0;
+    padding:0;
+    line-height:0;
+}
+.main-img{
+    display:block;
+    width:100%;
+    height:auto;
+    margin:0;
+    padding:0;
+}
+
+
+/* ==========================================
+   メニュー
+========================================== */
+
+.menu{
+    width:90%;
+    max-width:700px;
+    margin:25px auto;
+}
+
+/* ==========================================
+   共通ボタン
+========================================== */
+
+
+
+
+/*==========================================
+  メインボタン（プロ仕様）
+==========================================*/
+.btn{
+
+    width:100%;
+
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+
+    padding:18px 22px;
+
+    margin:12px 0;
+
+    border:none;
+    border-radius:18px;
+
+    background:linear-gradient(180deg,#ffffff,#f5f5f5);
+
+    color:#222;
+
+    font-size:22px;
+    font-weight:700;
+
+    cursor:pointer;
+
+    box-shadow:
+        0 6px 18px rgba(0,0,0,.12),
+        0 2px 6px rgba(0,0,0,.08);
+
+    transition:.25s ease;
+
+    text-align:left;
+}
+
+.btn:hover{
+
+    transform:translateY(-3px);
+
+    box-shadow:0 12px 24px rgba(0,0,0,.20);
+
+}
+
+.pdf-btn:hover{
+
+    background:#1259a8;
+
+}
+.btn-left{
+
+    display:flex;
+
+    flex-direction:column;
+
+    align-items:flex-start;
+
+    gap:6px;
+
+    flex:1;
+
+}
+.btn-title{
+
+    display:block;
+
+    font-size:26px;
+
+    font-weight:700;
+
+    line-height:1.2;
+
+}
+.btn-sub{
+
+    display:block;
+
+    font-size:15px;
+
+    color:#777;
+
+    line-height:1.5;
+
+}
+.arrow{
+
+    font-size:34px;
+
+    color:#8B0000;
+
+    font-weight:bold;
+
+    transition:.3s;
+
+}
+.btn:hover .arrow{
+
+    transform:translateX(6px);
+
+}
+
+/* ==========================================
+   アコーディオン
+========================================== */
+
+/*==========================================
+  コンテンツカード（プロ仕様）
+==========================================*/
+
+.content{
+
+    display:none;
+
+    background:#ffffff;
+
+    margin-top:15px;
+    margin-bottom:25px;
+
+    padding:28px;
+
+    border-radius:20px;
+
+    border:1px solid #e6e6e6;
+
+    box-shadow:
+        0 8px 25px rgba(0,0,0,.08);
+
+    line-height:1.9;
+
+    font-size:18px;
+
+    animation:fadeIn .35s ease;
+
+}
+
+.content p{
+    color:#444;
+
+    margin-bottom:15px;
+
+    text-align:justify;
+
+}
+
+.content.active{
+
+    display:block;
+
+}
+.content h2{
+
+    font-size:24px;
+
+    color:#8B0000;
+
+    margin-bottom:18px;
+
+    font-weight:700;
+
+}
+.btn + .content{
+
+    margin-top:12px;
+
+}
+
+/* ==========================================
+   組合活動
+========================================== */
+
+/* 組合活動（スマホ） */
+/* 組合活動 */
+
+.activity-grid{
+
+    display:flex;
+    flex-direction:column;
+    gap:18px;
+
+}
+
+.activity-item{
+
+    width:100%;
+
+}
+
+.activity-btn{
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+    width:100%;
+    min-height:70px;
+
+    padding:18px;
+
+    background:#f5f5f5;
+
+    border:none;
+    border-radius:15px;
+
+    box-shadow:0 4px 10px rgba(0,0,0,.12);
+
+    text-decoration:none;
+    color:#333;
+
+    font-size:22px;
+    font-weight:bold;
+
+    cursor:pointer;
+
+    transition:.3s;
+
+    box-sizing:border-box;
+
+}
+
+.activity-btn:hover{
+
+    background:#e6e6e6;
+
+    transform:translateY(-2px);
+
+}
+/* ==========================================
+   サブボタン
+========================================== */
+
+.sub-btn{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+    width:100%;
+    min-height:70px;
+
+    padding:18px;
+    margin-bottom:15px;
+
+    background:#f5f5f5;
+
+    border:none;
+    border-radius:15px;
+
+    box-shadow:0 4px 10px rgba(0,0,0,.12);
+
+    text-align:center;
+    text-decoration:none;
+
+    font-size:20px;
+    font-weight:bold;
+    color:#333;
+
+    cursor:pointer;
+
+    box-sizing:border-box;
+}
+.sub-btn:hover{
+    background:#e6e6e6;
+    transform:translateY(-2px);
+}
+
+/* ==========================================
+   ニュース一覧
+========================================== */
+
+.sub-content{
+
+    display:none;
+
+    margin-top:20px;
+
+}
+
+.sub-content.active{
+
+    display:block;
+
+}
+
+/* ==========================================
+   PDFボタン
+========================================== */
+
+.pdf-btn{
+
+    display:block;
+
+    width:100%;
+
+    margin-top:12px;
+
+    padding:16px;
+
+    background:#1976d2;
+
+    color:#ffffff;
+
+    text-decoration:none;
+
+    text-align:center;
+
+    font-size:20px;
+
+    font-weight:bold;
+
+    border-radius:12px;
+
+    transition:.3s;
+
+    box-sizing:border-box;
+
+}
+.news-list{
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+    width:100%;
+}
+
+.pdf-btn:hover{
+
+    background:#1259a8;
+
+}
+/* ==========================================
+   ゼンセン共済・九州労金
+========================================== */
+
+.bottom-links{
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    gap:18px;
+
+    margin-top:20px;
+
+    margin-bottom:20px;
+
+}
+
+.bottom-links .btn{
+
+    flex:1;
+
+    max-width:260px;
+
+    min-height:72px;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    margin:0;
+
+    font-size:22px;
+
+    white-space:nowrap;
+
+}
+
+/* ==========================================
+   LINE相談
+========================================== */
+
+.line-contact{
+
+    margin:40px auto;
+
+    text-align:center;
+
+}
+
+
+
+/* ==========================================
+   PDF表示
+========================================== */
+
+iframe{
+
+    width:100%;
+
+    height:700px;
+
+    border:none;
+
+    border-radius:12px;
+
+    background:#ffffff;
+
+}
+
+/* ==========================================
+   画像
+========================================== */
+
+img{
+
+    max-width:100%;
+
+    height:auto;
+
+}
+
+/* ==========================================
+   共通余白
+========================================== */
+
+section{
+
+    margin-bottom:30px;
+
+}
+
+/* ===== 委員長相談 ===== */
+
+.consult-btn{
+
+    display:block;
+
+    width:100%;
+    max-width:600px;
+
+    margin:20px auto;
+
+    padding:22px;
+
+    border:none;
+
+    border-radius:20px;
+
+    background:linear-gradient(135deg,#06C755,#00A944);
+
+    color:white;
+
+    font-size:30px;
+
+    font-weight:bold;
+
+    cursor:pointer;
+
+    box-shadow:0 8px 20px rgba(0,0,0,.25);
+
+}
+
+.consult-content{
+
+    display:none;
+
+    margin:30px auto;
+
+    max-width:1000px;
+
+    background:white;
+
+    border-radius:25px;
+
+    padding:35px;
+
+    box-shadow:0 10px 30px rgba(0,0,0,.18);
+
+}
+
+.consult-box{
+
+    display:flex;
+
+    gap:25px;
+
+    justify-content:center;
+
+    flex-wrap:wrap;
+
+}
+
+.consult-card{
+
+    flex:1;
+
+    min-width:320px;
+
+    background:#f8fff9;
+
+    border:1px solid #dcefdc;
+
+    border-radius:20px;
+
+    padding:30px;
+
+    text-align:center;
+
+}
+
+.consult-card h3{
+
+    font-size:28px;
+
+    margin-bottom:15px;
+
+}
+
+.consult-card h1{
+
+    color:#06C755;
+
+    font-size:48px;
+
+    margin:20px 0;
+
+}
+
+.phone-btn,
+.line-btn{
+
+    display:inline-block;
+
+    margin-top:20px;
+
+    padding:16px 35px;
+
+    border-radius:15px;
+
+    background:#06C755;
+
+    color:white;
+
+    text-decoration:none;
+
+    font-size:24px;
+
+    font-weight:bold;
+
+}
+
+.line-qr{
+
+    width:180px;
+
+    display:block;
+
+    margin:20px auto;
+
+}
+.consult-content{
+    display:none;
+}
+
+.consult-content.active{
+    display:block;
+}
+.consult-btn{
+    position: relative;
+    z-index: 9999;
+}
+.activity-grid{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:15px;
+}
+
+.activity-grid .sub-btn,
+.activity-grid .activity-btn{
+
+    width:100%;
+    max-width:600px;
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+    min-height:70px;
+
+    margin:0 auto;
+
+    border-radius:15px;
+
+    font-size:20px;
+    font-weight:bold;
+
+    text-decoration:none;
+}
+/* ボタンにマウスを乗せた時 */
+
+.btn:hover{
+
+    transform:translateY(-3px);
+
+    box-shadow:
+        0 12px 28px rgba(0,0,0,.18),
+        0 4px 10px rgba(0,0,0,.12);
+
+    background:linear-gradient(180deg,#ffffff,#ececec);
+
+}
+
+@media(max-width:768px){
+
+    .consult-box{
+
+        flex-direction:column;
+
+    }
+
+    .consult-card{
+
+        min-width:100%;
+
+    }
+
+}
+/* ==========================================
+   スマホ対応
+========================================== */
+
+@media screen and (max-width:768px){
+
+    .activity-grid{
+
+        display:block !important;
+
+    }
+
+    .activity-grid .sub-btn{
+
+        display:flex;
+
+        width:100%;
+
+        margin:12px 0;
+
+        justify-content:center;
+
+        align-items:center;
+
+        font-size:18px;
+
+        white-space:normal;
+
+        height:auto;
+
+        min-height:65px;
+
+        line-height:1.5;
+
+        box-sizing:border-box;
+
+    }
+   /* ボタンを押した時 */
+
+.btn:active{
+
+    transform:scale(.98);
+
+　　}
+/* ==========================================
+   PC
+========================================== */
+
+
+@media (max-width:768px){
+
+    .line-contact{
+        margin:20px 15px;
+        padding:20px;
+    }
+
+    .line-qr{
+        width:180px;
+    }
+
+    .line-btn{
+        width:90%;
+        font-size:18px;
+        padding:15px 0;
+    }
+}
+/* スマホでは縦並び */
+@media screen and (max-width:768px){
+
+    .bottom-links{
+
+        display:flex;
+
+        flex-direction:column;
+
+        gap:15px;
+
+        width:100%;
+
+    }
+
+    .bottom-links .btn{
+
+        width:100%;
+
+        max-width:none;
+
+        margin:0;
+
+    }
+
+}
+   /* スマホ */
+
+@media(max-width:768px){
+
+.btn{
+
+    font-size:20px;
+
+    padding:16px 18px;
+
+    border-radius:16px;
+
+　}
+/*==========================================
+  フェードイン
+==========================================*/
+
+@keyframes fadeIn{
+
+    from{
+
+        opacity:0;
+        transform:translateY(10px);
+
+    }
+
+    to{
+
+        opacity:1;
+        transform:translateY(0);
+
+    }
+
+}
+
+}
+

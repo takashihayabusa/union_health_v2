@@ -1,0 +1,318 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>マルキョウユニオン</title>
+
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+
+</head>
+
+<body>
+
+<!-- =========================
+    メイン画像
+========================= -->
+
+<div class="main-image">
+
+    <img src="{% static 'images/main-photo.png' %}"
+        class="main-img"
+        alt="メイン画像">
+
+</div>
+
+<!-- =========================
+    メニュー
+========================= -->
+
+<div class="menu">
+
+    <!-- 組合とは -->
+
+    <button class="btn"
+        onclick="toggleContent('activity-content')">
+
+    👥 組合活動
+
+</button>
+
+<div id="activity-content" class="content">
+
+    <div class="activity-grid">
+
+        <!-- 組合ニュース -->
+        <div class="activity-item">
+
+            <button class="activity-btn"
+                    type="button"
+                    onclick="event.stopPropagation(); toggleContent('news-content')">
+                📰 組合ニュース
+            </button>
+
+            <div id="news-content" class="sub-content">
+
+                <div class="news-list">
+
+                    <button class="pdf-btn"
+                            type="button"
+                            onclick="window.open('{% url 'protected_pdf' 'news_05.pdf' %}', '_blank')">
+                        📄 5月組合ニュース
+                    </button>
+
+                    <button class="pdf-btn"
+                            type="button"
+                            onclick="window.open('{% url 'protected_pdf' 'news_06.pdf' %}', '_blank')">
+                        📄 6月組合ニュース
+                    </button>
+
+                    <button class="pdf-btn"
+                            type="button"
+                            onclick="window.open('{% url 'protected_pdf' 'news_07.pdf' %}', '_blank')">
+                        📄 7月組合ニュース
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- マイカー共済 -->
+        <div class="activity-item">
+
+            <button class="activity-btn"
+                    type="button"
+                    onclick="event.stopPropagation(); toggleContent('mycar-content')">
+                🚗 マイカー共済
+            </button>
+
+            <div id="mycar-content" class="sub-content">
+
+                <div class="news-list">
+
+                    <button class="pdf-btn"
+                            type="button"
+                            onclick="window.open('{% url 'protected_pdf' 'mycar.pdf' %}', '_blank')">
+                        📄 マイカー共済を見る
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- NISA・フリーローン -->
+        <div class="activity-item">
+
+            <button id="nisa"
+                    class="activity-btn"
+                    type="button"
+                    onclick="event.stopPropagation(); toggleContent('nisa-content')">
+
+                🏦 NISA・フリーローン
+
+            </button>
+
+            <div id="nisa-content" class="sub-content">
+
+                <div class="news-list">
+
+                    <button class="pdf-btn"
+                            type="button"
+                            onclick="window.open('{% url 'protected_pdf' 'roukin.pdf' %}', '_blank')">
+                        📄 NISA・フリーローンを見る
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+    
+        </div>
+    
+    </div>
+    <!-- UAゼンセン共済・九州労働金庫 -->
+
+    <div class="bottom-links">
+
+        <a href="https://uazensen.jp/kyousai_top/"
+            class="btn"
+            target="_blank"
+            rel="noopener noreferrer">
+
+            ❤️ UAゼンセン共済
+
+        </a>
+
+        <a href="https://kyusyu-rokin.com/"
+            class="btn"
+            target="_blank"
+            rel="noopener noreferrer">
+
+            🏦 九州労働金庫
+
+        </a>
+
+    </div>
+
+</div>
+
+
+<!-- =========================
+    委員長相談
+========================= -->
+
+<div class="line-contact">
+
+    <button class="consult-btn"
+        type="button"
+        onclick="event.stopPropagation(); toggleContent('consult')">
+
+        📱 相談をする
+
+    </button>
+
+    <div id="consult" class="consult-content">
+
+        <h2>相談方法をお選びください</h2>
+
+        <div class="consult-box">
+
+            <!-- 電話相談 -->
+
+            <div class="consult-card">
+
+                <h3>📞 電話による相談</h3>
+
+                <p>
+                    スマートフォンをご利用の方は、
+                    「📞 電話をかける」を押すとそのまま発信できます。
+                </p>
+
+                <h2>08017200311</h2>
+
+                <a href="tel:09094855990"
+                    class="phone-btn">
+
+                    📞 電話をかける
+
+                </a>
+
+            </div>
+
+
+            <!-- LINE相談 -->
+
+            <div class="consult-card">
+
+                <h3>💬 LINEによる相談</h3>
+
+                <p>
+                    QRコードを読み取るか、
+                    下のボタンをご利用ください。
+                </p>
+
+                <img src="{% static 'images/kumaki.jpg' %}"
+                    class="line-qr"
+                    alt="LINE QRコード">
+
+                <a href="https://line.me/ti/p/HLkr0fU01K"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="line-btn">
+
+                    LINEで相談する
+
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =========================
+    JavaScript
+========================= -->
+
+<script>
+
+function toggleContent(id){
+
+    const content = document.getElementById(id);
+
+    if(content.classList.contains("active")){
+        content.classList.remove("active");
+    }else{
+        content.classList.add("active");
+    }
+}
+
+
+/* LINEリッチメニュー対応 */
+
+window.onload = function(){
+
+    const hash = window.location.hash;
+
+    if(hash){
+
+        if(hash === "#about-content"){
+            document.getElementById("about-content").classList.add("active");
+        }
+
+        if(
+            hash === "#activity-content" ||
+            hash === "#news-content" ||
+            hash === "#mycar" ||
+            hash === "#nisa"
+        ){
+            document.getElementById("activity-content").classList.add("active");
+        }
+
+        if(hash === "#news-content"){
+            document.getElementById("news-content").classList.add("active");
+        }
+
+        if(hash === "#consult"){
+            document.getElementById("consult").classList.add("active");
+        }
+
+        const target = document.querySelector(hash);
+
+        if(target){
+            setTimeout(function(){
+                target.scrollIntoView({
+                    behavior: "smooth",
+                    block: "center"
+                });
+            }, 300);
+        }
+
+    }
+
+}
+
+</script>
+
+</body>
+
+</html>

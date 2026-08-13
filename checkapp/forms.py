@@ -1,6 +1,7 @@
 from django import forms
 from .models import Account
 
+
 LIVING_AREA_CHOICES = [
     ("北九州", "北九州"),
     ("福岡", "福岡"),
@@ -15,7 +16,12 @@ class AccountRegisterForm(forms.Form):
 
     name = forms.CharField(
         label="氏名",
-        max_length=50,
+        max_length=100,
+        widget=forms.TextInput(
+            attrs={
+                "placeholder": "ひらがなで入力してください",
+            }
+        ),
     )
 
     region = forms.ChoiceField(
@@ -24,14 +30,14 @@ class AccountRegisterForm(forms.Form):
     )
 
     login_id = forms.CharField(
-        label="社員番号（ログインID）",
+        label="社員番号",
         min_length=6,
         max_length=6,
         widget=forms.TextInput(
             attrs={
                 "inputmode": "numeric",
                 "pattern": "[0-9]*",
-                "placeholder": "例：012345"
+                "placeholder": "6桁",
             }
         ),
     )
@@ -43,8 +49,7 @@ class AccountRegisterForm(forms.Form):
             attrs={
                 "inputmode": "numeric",
                 "pattern": "[0-9]*",
-                "maxlength": "8",
-                "placeholder": "例：19901213",
+                "placeholder": "例：19600910",
             }
         ),
     )
@@ -55,9 +60,9 @@ class AccountRegisterForm(forms.Form):
         max_length=4,
         widget=forms.PasswordInput(
             attrs={
-            "inputmode": "numeric",
-            "pattern": "[0-9]*",
-            "placeholder": "例：0909"
+                "inputmode": "numeric",
+                "pattern": "[0-9]*",
+                "placeholder": "4桁",
             }
         ),
     )
@@ -70,13 +75,18 @@ class AccountRegisterForm(forms.Form):
             attrs={
                 "inputmode": "numeric",
                 "pattern": "[0-9]*",
-                "placeholder": "もう一度入力（例：0909）"
+                "placeholder": "4桁",
             }
         ),
     )
-    def clean_login_id(self):
 
+    def clean_login_id(self):
         login_id = self.cleaned_data["login_id"]
+
+        if not login_id.isdigit():
+            raise forms.ValidationError(
+                "社員番号は6桁の数字で入力してください。"
+            )
 
         if Account.objects.filter(login_id=login_id).exists():
             raise forms.ValidationError(
@@ -88,12 +98,23 @@ class AccountRegisterForm(forms.Form):
     def clean(self):
         cleaned_data = super().clean()
 
-        if cleaned_data.get("password1") != cleaned_data.get("password2"):
-            raise forms.ValidationError("パスワードが一致しません。")
+        password1 = cleaned_data.get("password1")
+        password2 = cleaned_data.get("password2")
+
+        if password1 and not password1.isdigit():
+            self.add_error(
+                "password1",
+                "パスワードは4桁の数字で入力してください。"
+            )
+
+        if password1 != password2:
+            raise forms.ValidationError(
+                "パスワードが一致していません。"
+            )
 
         return cleaned_data
-    
-    
+
+
 class LoginForm(forms.Form):
 
     login_id = forms.CharField(

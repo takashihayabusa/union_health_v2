@@ -12,6 +12,8 @@ urlpatterns = [
     
     path("login/", views.login_view, name="login"),
     
+    path("union-home/", views.union_home, name="union_home"),
+    
     path("logout/", views.logout_view, name="logout"),
 
     path("send/", views.region_send, name="region_send"),
@@ -64,4 +66,5 @@ urlpatterns = [
     views.account_delete,
     name="account_delete",
 ),
+    path("protected-pdf/<str:filename>/", views.protected_pdf, name="protected_pdf"),
     ] 

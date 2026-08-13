@@ -1,7 +1,7 @@
 from django.contrib.auth.hashers import check_password
 from .forms import AccountRegisterForm, LoginForm
 from django.shortcuts import render,redirect,get_object_or_404
-from django.http import HttpResponse
+from django.http import HttpResponse, FileResponse, Http404
 from django.contrib.auth.hashers import make_password
 from openpyxl import Workbook
 from django.views.decorators.csrf import csrf_exempt
@@ -17,6 +17,7 @@ from openpyxl.styles import PatternFill, Font
 from datetime import datetime
 import re
 from .services import send_health_check_to_all
+from pathlib import Path
 
 
 print("CHECKAPP 起動")
@@ -52,11 +53,14 @@ def save_line_log(user, sender, message_type, content):
 from django.shortcuts import redirect
 
 def home(request):
+    return render(request, "checkapp/home.html")
+
+def union_home(request):
 
     if "account_id" not in request.session:
         return redirect("login")
 
-    return render(request, "checkapp/home.html")
+    return render(request, "checkapp/union_home.html")
 
 # -------------------------
 # ユーザー一覧
@@ -84,18 +88,14 @@ def user_list(request):
 # -------------------------
 def register(request):
 
-    # GETでもPOSTでも user_id を取得
+    # LINEのuser_idを取得
     user_id = request.GET.get("user_id") or request.POST.get("user_id")
 
     if request.method == "POST":
 
-        print("★★ 新しい register が実行されました ★★")
-
         form = AccountRegisterForm(request.POST)
 
         if form.is_valid():
-
-            print("フォームOK")
 
             name = form.cleaned_data["name"]
             region = form.cleaned_data["region"]
@@ -103,7 +103,7 @@ def register(request):
             birth_date = form.cleaned_data["birth_date"]
             password = form.cleaned_data["password1"]
 
-            # Accountへ保存
+            # 組合員アカウントを保存
             Account.objects.create(
                 login_id=login_id,
                 password=make_password(password),
@@ -112,51 +112,24 @@ def register(request):
                 birth_date=birth_date,
             )
 
-            # LineUserへ保存
-            LineUser.objects.update_or_create(
-                user_id=user_id,
-                defaults={
-                    "name": name,
-                    "region": region,
-                }
-            )
-
-            try:
-                line_bot_api.push_message(
-                    user_id,
-                    TextSendMessage(
-                        text=(
-                            "📢 マルキョウユニオンLINEホームページ\n\n"
-                            "登録ありがとうございます。\n"
-                            "マルキョウユニオンLINEホームページはこちらからご利用ください。\n\n"
-                            "https://lin.ee/zHqTDDZ"
-                        )
-                    )
+            # LINE利用者情報を保存
+            if user_id:
+                LineUser.objects.update_or_create(
+                    user_id=user_id,
+                    defaults={
+                        "name": name,
+                        "region": region,
+                    }
                 )
-            except Exception as e:
-                print(f"LINE送信エラー: {e}")
 
-            # 登録後は完了画面
+            # 登録完了画面へ
             return render(
                 request,
                 "checkapp/register_complete.html"
             )
 
-        else:
-            print("フォームエラー")
-            print(form.errors)
-
-            return render(
-                request,
-                "checkapp/account_register.html",
-                {
-                    "form": form,
-                    "user_id": user_id,
-                }
-            )
-
-    # GETのときは登録画面
-    form = AccountRegisterForm()
+    else:
+        form = AccountRegisterForm()
 
     return render(
         request,
@@ -210,7 +183,6 @@ def callback(request):
 @handler.add(FollowEvent)
 def handle_follow(event):
 
-
     user_id = event.source.user_id
 
     LineUser.objects.get_or_create(
@@ -218,17 +190,19 @@ def handle_follow(event):
     )
 
     register_url = (
-    f"https://nonfrigid-smug-candance.ngrok-free.dev/register?user_id={user_id}"
+        f"https://nonfrigid-smug-candance.ngrok-free.dev/register?user_id={user_id}"
     )
 
     line_bot_api.reply_message(
         event.reply_token,
         TextSendMessage(
-            text=
-            "友だち追加ありがとうございます。\n\n"
-            "下記の登録ページから\n\n"
-            "名前と地域を登録してください。\n\n"
-            f"{register_url}"
+            text=(
+                "友だち追加ありがとうございます。\n\n"
+                "マルキョウユニオンLINEをご利用いただくため、"
+                "組合員登録をお願いします。\n\n"
+                "▼ 組合員登録はこちら\n"
+                f"{register_url}"
+            )
         )
     )
 # -------------------------
@@ -962,7 +936,7 @@ def login_view(request):
                     request.session["account_id"] = account.id
                     request.session["account_name"] = account.name
 
-                    return redirect("/")
+                    return redirect("union_home")
 
             form.add_error(
                 None,
@@ -1092,3 +1066,36 @@ def clear_all_users(request):
     LineUser.objects.all().delete()
 
     return redirect("/users/")
+# =====================================
+# 組合員専用 PDF表示
+# =====================================
+
+def protected_pdf(request, filename):
+
+    # ログインしていなければログイン画面へ
+    if "account_id" not in request.session:
+        return redirect("login")
+
+    # 開くことを許可するPDF
+    allowed_files = {
+        "news_05.pdf",
+        "news_06.pdf",
+        "news_07.pdf",
+        "mycar.pdf",
+        "roukin.pdf",
+    }
+
+    # 許可されていないファイルは開かない
+    if filename not in allowed_files:
+        raise Http404("PDFが見つかりません")
+
+    pdf_path = Path(settings.BASE_DIR) / "protected_pdfs" / filename
+
+    # PDFが存在しない場合
+    if not pdf_path.exists():
+        raise Http404("PDFが見つかりません")
+
+    return FileResponse(
+        open(pdf_path, "rb"),
+        content_type="application/pdf"
+    )

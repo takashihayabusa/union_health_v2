@@ -1,148 +1,297 @@
 <!DOCTYPE html>
-
 <html lang="ja">
 
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<meta charset="UTF-8">
+    <title>マルキョウユニオン 組合員登録</title>
 
-<title>組合員登録</title>
-<style>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
 
-    body{
-        font-family: "Yu Gothic", sans-serif;
-        margin:40px;
-    }
-    
-    input,
-    select{
-        background-color:#f5f9ff;
-        border:1px solid #4a90e2;
-        border-radius:6px;
-        padding:8px;
-        font-size:16px;
-    }
-    
-    input:focus,
-    select:focus{
-        background:#fffde7;
-        border:2px solid #ff9800;
-        outline:none;
-    }
-    
-    button{
-        background:#1976d2;
-        color:white;
-        border:none;
-        padding:10px 25px;
-        font-size:16px;
-        border-radius:8px;
-        cursor:pointer;
-    }
-    
-    button:hover{
-        background:#1565c0;
-    }
-    
+        body {
+            margin: 0;
+            padding: 15px;
+            background: #f4f8fc;
+            font-family: -apple-system, BlinkMacSystemFont,
+                         "Yu Gothic", "Hiragino Kaku Gothic ProN",
+                         sans-serif;
+            color: #333;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            margin: 15px auto;
+            background: white;
+            padding: 25px 20px;
+            border-radius: 16px;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.08);
+        }
+
+        h1 {
+            text-align: center;
+            color: #174f8a;
+            font-size: 26px;
+            margin-top: 0;
+        }
+
+        .intro {
+            line-height: 1.8;
+            margin-bottom: 25px;
+        }
+
+        .field {
+            margin-bottom: 22px;
+        }
+
+        .field label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 7px;
+            font-size: 16px;
+        }
+
+        .field input,
+        .field select {
+            width: 100%;
+            min-height: 52px;
+            padding: 10px;
+            font-size: 18px;
+            background: #f5f9ff;
+            border: 1px solid #4a90e2;
+            border-radius: 8px;
+        }
+
+        .field input:focus,
+        .field select:focus {
+            background: #fffde7;
+            border: 2px solid #ff9800;
+            outline: none;
+        }
+
+        .help {
+            font-size: 14px;
+            color: #555;
+            margin-top: 6px;
+            line-height: 1.6;
+        }
+
+        .notice {
+            margin-top: 30px;
+            padding: 18px;
+            background: #fff9e8;
+            border: 1px solid #e0b44c;
+            border-radius: 10px;
+        }
+
+        .notice h2 {
+            margin-top: 0;
+            font-size: 19px;
+            color: #8a5a00;
+        }
+
+        .notice p {
+            line-height: 1.7;
+        }
+
+        .agreement {
+            margin: 20px 0;
+            padding: 14px;
+            background: white;
+            border-radius: 8px;
+        }
+
+        .agreement label {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            line-height: 1.6;
+            font-size: 16px;
+        }
+
+        .agreement input[type="checkbox"] {
+            width: 24px;
+            height: 24px;
+            min-width: 24px;
+            margin-top: 2px;
+        }
+
+        .errorlist {
+            color: #c62828;
+            font-weight: bold;
+            padding-left: 20px;
+        }
+
+        button {
+            width: 100%;
+            margin-top: 25px;
+            padding: 16px;
+            border: none;
+            border-radius: 10px;
+            background: #1976d2;
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #1565c0;
+        }
     </style>
-
 </head>
 
 <body>
 
+<div class="container">
+
     <h1>組合員登録</h1>
 
-    <p>
-    このシステムは組合員専用です。<br>
-    登録後は社員番号と4桁の暗証番号でログインします。
-    </p>
-    
-    <hr>
-    
-    <p>
-    <strong>【入力方法】</strong>
-    </p>
-    
-    <ul>
-        <li>氏名：本名を入力してください。</li>
-        <li>所属地区：所属地区を選択してください。</li>
-        <li>
-            社員番号（ログインID）：会社の社員番号を6桁で入力してください。<br>
-            ※5桁の方は先頭に「0」を付けて入力してください。<br>
-            例：12345 → 012345
-        </li>
-        <li>生年月日：本人確認のため入力してください。<br>
-            例：1990-04-15
-        </li>
-        <li>
-            4桁の暗証番号：
-            生年月日の「月日」を4桁で入力してください。<br>
-            例：9月9日 → 0909<br>
-            例：12月5日 → 1205
-        </li>
-        
-        <li>
-            確認用暗証番号：
-            もう一度同じ4桁の数字を入力してください。
-        </li>
-        <li>確認用暗証番号：もう一度同じ4桁の数字を入力してください。</li>
-    </ul>
-    
-    <hr>
-    
+    <div class="intro">
+        このページはマルキョウユニオン組合員専用です。<br>
+        必要事項を入力して登録してください。<br><br>
+        登録後は、
+        <strong>社員番号と4桁のパスワード</strong>
+        でログインします。
+    </div>
+
     <form method="post">
-    
+
         {% csrf_token %}
-    
-        <p>{{ form }}</p>
-    
+
+        {{ form.non_field_errors }}
+
+        <div class="field">
+            {{ form.name.label_tag }}
+            {{ form.name }}
+            {{ form.name.errors }}
+            <div class="help">
+                氏名はひらがなで入力してください。
+            </div>
+        </div>
+
+        <div class="field">
+            {{ form.region.label_tag }}
+            {{ form.region }}
+            {{ form.region.errors }}
+        </div>
+
+        <div class="field">
+            {{ form.login_id.label_tag }}
+            {{ form.login_id }}
+            {{ form.login_id.errors }}
+            <div class="help">
+                会社の社員番号を6桁で入力してください。<br>
+                5桁の場合は先頭に「0」を付けます。<br>
+                例：12345 → 012345
+            </div>
+        </div>
+
+        <div class="field">
+            {{ form.birth_date.label_tag }}
+            {{ form.birth_date }}
+            {{ form.birth_date.errors }}
+            <div class="help">
+                西暦から数字8桁で入力してください。<br>
+                例：1960年9月10日 → 19600910
+            </div>
+        </div>
+
+        <div class="field">
+            {{ form.password1.label_tag }}
+            {{ form.password1 }}
+            {{ form.password1.errors }}
+            <div class="help">
+                ログインするときに使用する数字4桁を入力してください。
+            </div>
+        </div>
+
+        <div class="field">
+            {{ form.password2.label_tag }}
+            {{ form.password2 }}
+            {{ form.password2.errors }}
+            <div class="help">
+                確認のため、同じ4桁をもう一度入力してください。
+            </div>
+        </div>
+
+        <div class="notice">
+
+            <h2>登録前に必ずご確認ください</h2>
+
+            <p>
+                登録後、マルキョウユニオンから
+                <strong>健康チェック</strong>を定期的にお送りします。
+            </p>
+
+            <p>
+                また、災害などの緊急時には
+                <strong>緊急生存確認・安否確認</strong>を
+                お送りする場合があります。
+            </p>
+
+            <div class="agreement">
+                <label>
+                    {{ form.agree_health }}
+                    <span>
+                        上記の内容を確認し、健康チェックおよび
+                        緊急生存確認の利用に同意します。
+                    </span>
+                </label>
+                {{ form.agree_health.errors }}
+            </div>
+
+            <div class="agreement">
+                <label>
+                    {{ form.agree_sns }}
+                    <span>
+                        組合から得た情報・資料等を、
+                        SNSなどへ無断で掲載・投稿しないことに同意します。
+                    </span>
+                </label>
+                {{ form.agree_sns.errors }}
+            </div>
+
+        </div>
+
         <button type="submit">
-            登録する
+            同意して登録する
         </button>
-    
-    </form>
-        <script>
-            document.querySelectorAll("input").forEach(function(input){
-        
-                input.addEventListener("input", function(){
-        
-                    this.value = this.value.replace(/[０-９]/g, function(s){
-                        return String.fromCharCode(s.charCodeAt(0)-0xFEE0);
-                    });
-        
-                });
-        
-            });
-        </script>
+
     </form>
 
-    <script>
-    document.querySelectorAll("input").forEach(function(input){
-    
-        input.addEventListener("input", function(){
-    
-            // 全角数字 → 半角数字
-            this.value = this.value.replace(/[０-９]/g, function(s){
-                return String.fromCharCode(s.charCodeAt(0)-0xFEE0);
-            });
-    
-            // 社員番号・生年月日・パスワードは数字だけ
-            if (
-                this.name === "login_id" ||
-                this.name === "birth_date" ||
-                this.name === "password1" ||
-                this.name === "password2"
-            ){
-                this.value = this.value.replace(/[^0-9]/g, "");
-            }
-    
+</div>
+
+<script>
+document.querySelectorAll("input").forEach(function(input) {
+
+    input.addEventListener("input", function() {
+
+        // 全角数字を半角数字へ変換
+        this.value = this.value.replace(/[０-９]/g, function(s) {
+            return String.fromCharCode(
+                s.charCodeAt(0) - 0xFEE0
+            );
         });
-    
-    });
-    </script>
-    
-    </body>
-    </html>
-</body>
 
+        // 数字だけ入力できる項目
+        if (
+            this.name === "login_id" ||
+            this.name === "birth_date" ||
+            this.name === "password1" ||
+            this.name === "password2"
+        ) {
+            this.value = this.value.replace(/[^0-9]/g, "");
+        }
+
+    });
+
+});
+</script>
+
+</body>
 </html>
