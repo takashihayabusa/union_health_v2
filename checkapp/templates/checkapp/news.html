@@ -1,0 +1,56 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>組合ニュース｜マルキョウユニオン</title>
+
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+</head>
+
+<body>
+
+<div class="menu">
+
+    <div class="activity-item">
+
+        <button class="activity-btn" type="button">
+            📰 組合ニュース
+        </button>
+
+        <div class="sub-content active">
+
+            <div class="news-list">
+
+                <button class="pdf-btn"
+                        type="button"
+                        onclick="window.open('{% url 'protected_pdf' 'news_05.pdf' %}', '_blank')">
+                    📄 5月組合ニュース
+                </button>
+
+                <button class="pdf-btn"
+                        type="button"
+                        onclick="window.open('{% url 'protected_pdf' 'news_06.pdf' %}', '_blank')">
+                    📄 6月組合ニュース
+                </button>
+
+                <button class="pdf-btn"
+                        type="button"
+                        onclick="window.open('{% url 'protected_pdf' 'news_07.pdf' %}', '_blank')">
+                    📄 7月組合ニュース
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>

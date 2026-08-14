@@ -936,6 +936,19 @@ def login_view(request):
                     request.session["account_id"] = account.id
                     request.session["account_name"] = account.name
 
+                    # リッチメニューからの行き先を確認
+                    next_page = request.POST.get("next") or request.GET.get("next")
+
+                    if next_page == "news":
+                        return redirect("union_news")
+
+                    if next_page == "mycar":
+                        return redirect("mycar")
+                    
+                    if next_page == "roukin":
+                        return redirect("roukin")
+
+
                     return redirect("union_home")
 
             form.add_error(
@@ -954,7 +967,6 @@ def login_view(request):
             "form": form,
         }
     )
-
 
 
 def logout_view(request):
@@ -1099,3 +1111,36 @@ def protected_pdf(request, filename):
         open(pdf_path, "rb"),
         content_type="application/pdf"
     )
+    
+def union_news(request):
+
+    if "account_id" not in request.session:
+        return redirect("/login/?next=news")
+
+    return render(
+        request,
+        "checkapp/news.html"
+    )
+
+    
+# =====================================
+# マイカー共済 専用ページ
+# =====================================
+
+def mycar(request):
+
+    if "account_id" not in request.session:
+        return redirect("/login/?next=mycar")
+
+    return render(
+        request,
+        "checkapp/mycar.html"
+    )
+def roukin(request):
+
+    # ログインしていなければログイン画面へ
+    if "account_id" not in request.session:
+        return redirect("/login/?next=roukin")
+
+    # ログイン済みならNISA・フリーローン専用ページ
+    return render(request, "checkapp/roukin.html")

@@ -273,40 +273,25 @@ window.onload = function(){
 
     const hash = window.location.hash;
 
-    if(hash){
+    if(hash === "#news-content"){
 
-        if(hash === "#about-content"){
-            document.getElementById("about-content").classList.add("active");
-        }
+        // 組合活動を開く
+        document.getElementById("activity-content").classList.add("active");
 
-        if(
-            hash === "#activity-content" ||
-            hash === "#news-content" ||
-            hash === "#mycar" ||
-            hash === "#nisa"
-        ){
-            document.getElementById("activity-content").classList.add("active");
-        }
+        // 組合ニュースを開く
+        document.getElementById("news-content").classList.add("active");
 
-        if(hash === "#news-content"){
-            document.getElementById("news-content").classList.add("active");
-        }
+        // 組合活動の位置へ移動
+        setTimeout(function(){
 
-        if(hash === "#consult"){
-            document.getElementById("consult").classList.add("active");
-        }
+            document.getElementById("activity-content").scrollIntoView({
+                behavior: "smooth",
+                block: "start"
+            });
 
-        const target = document.querySelector(hash);
+        }, 300);
 
-        if(target){
-            setTimeout(function(){
-                target.scrollIntoView({
-                    behavior: "smooth",
-                    block: "center"
-                });
-            }, 300);
-        }
-
+        return;
     }
 
 }

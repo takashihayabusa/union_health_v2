@@ -67,4 +67,8 @@ urlpatterns = [
     name="account_delete",
 ),
     path("protected-pdf/<str:filename>/", views.protected_pdf, name="protected_pdf"),
+    
+    path("union-news/", views.union_news, name="union_news"),
+    path("mycar/", views.mycar, name="mycar"),
+    path("roukin/", views.roukin, name="roukin"),
     ] 
