@@ -79,6 +79,15 @@ class AccountRegisterForm(forms.Form):
             }
         ),
     )
+    agree_health = forms.BooleanField(
+    label="健康チェック・緊急生存確認への協力に同意します",
+    required=True,
+    )
+
+    agree_sns = forms.BooleanField(
+    label="組合から提供される情報をSNS等へ掲載しないことに同意します",
+    required=True,
+    )
 
     def clean_login_id(self):
         login_id = self.cleaned_data["login_id"]
