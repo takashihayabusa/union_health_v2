@@ -13,7 +13,7 @@ body{
     background:#eeeeee;
     color:#333;
     line-height:1.6;
-   　margin:0;
+    margin:0;
     padding:0;
 }
 
@@ -40,7 +40,7 @@ body{
 
 
 /* ==========================================
-   メイン画像
+メイン画像
 ========================================== */
 
 .main-image{
@@ -59,7 +59,7 @@ body{
 
 
 /* ==========================================
-   メニュー
+メニュー
 ========================================== */
 
 .menu{
@@ -69,14 +69,14 @@ body{
 }
 
 /* ==========================================
-   共通ボタン
+共通ボタン
 ========================================== */
 
 
 
 
 /*==========================================
-  メインボタン（プロ仕様）
+メインボタン（プロ仕様）
 ==========================================*/
 .btn{
 
@@ -177,11 +177,11 @@ body{
 }
 
 /* ==========================================
-   アコーディオン
+アコーディオン
 ========================================== */
 
 /*==========================================
-  コンテンツカード（プロ仕様）
+コンテンツカード（プロ仕様）
 ==========================================*/
 
 .content{
@@ -242,7 +242,7 @@ body{
 }
 
 /* ==========================================
-   組合活動
+組合活動
 ========================================== */
 
 /* 組合活動（スマホ） */
@@ -302,7 +302,7 @@ body{
 
 }
 /* ==========================================
-   サブボタン
+サブボタン
 ========================================== */
 
 .sub-btn{
@@ -340,7 +340,7 @@ body{
 }
 
 /* ==========================================
-   ニュース一覧
+ニュース一覧
 ========================================== */
 
 .sub-content{
@@ -358,7 +358,7 @@ body{
 }
 
 /* ==========================================
-   PDFボタン
+PDFボタン
 ========================================== */
 
 .pdf-btn{
@@ -403,7 +403,7 @@ body{
 
 }
 /* ==========================================
-   ゼンセン共済・九州労金
+ゼンセン共済・九州労金
 ========================================== */
 
 .bottom-links{
@@ -477,7 +477,7 @@ iframe{
 }
 
 /* ==========================================
-   画像
+画像
 ========================================== */
 
 img{
@@ -489,7 +489,7 @@ img{
 }
 
 /* ==========================================
-   共通余白
+共通余白
 ========================================== */
 
 section{
@@ -696,7 +696,7 @@ section{
 
 }
 /* ==========================================
-   スマホ対応
+スマホ対応
 ========================================== */
 
 @media screen and (max-width:768px){
@@ -737,10 +737,11 @@ section{
 .btn:active{
 
     transform:scale(.98);
+}
 
-　　}
+}
 /* ==========================================
-   PC
+PC
 ========================================== */
 
 
@@ -799,9 +800,9 @@ section{
 
     border-radius:16px;
 
-　}
+}
 /*==========================================
-  フェードイン
+フェードイン
 ==========================================*/
 
 @keyframes fadeIn{
@@ -823,4 +824,134 @@ section{
 }
 
 }
+/* ==========================================
+   LINEホーム スマホ最終調整
+========================================== */
 
+@media screen and (max-width: 768px) {
+
+    body {
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        overflow-x: hidden;
+        font-size: 16px;
+    }
+
+    .main-image {
+        width: 100%;
+    }
+
+    .main-img {
+        display: block;
+        width: 100%;
+        height: auto;
+    }
+
+    .menu {
+        width: auto;
+        max-width: none;
+        margin: 16px;
+    }
+
+    .btn,
+    .activity-btn,
+    .pdf-btn,
+    .consult-btn {
+        width: 100%;
+        max-width: none;
+        min-height: 58px;
+        font-size: 18px !important;
+        line-height: 1.4;
+        padding: 16px;
+        white-space: normal;
+    }
+
+    .content {
+        width: 100%;
+        margin: 12px 0 20px;
+        padding: 16px;
+    }
+
+    .activity-grid,
+    .activity-item,
+    .news-list {
+        width: 100%;
+    }
+
+    .bottom-links {
+        width: auto;
+        margin: 16px;
+    }
+
+    .bottom-links .btn {
+        width: 100%;
+        max-width: none;
+        min-height: 58px;
+        font-size: 18px !important;
+        justify-content: center;
+    }
+
+    .line-contact {
+        width: auto;
+        margin: 20px 16px;
+        padding: 0;
+    }
+
+    .consult-content {
+        width: 100%;
+        max-width: none;
+        margin: 15px 0;
+        padding: 16px;
+        border-radius: 16px;
+    }
+
+    .consult-content h2 {
+        font-size: 22px;
+        line-height: 1.4;
+    }
+
+    .consult-box {
+        display: block;
+        width: 100%;
+    }
+
+    .consult-card {
+        width: 100%;
+        min-width: 0;
+        margin-bottom: 16px;
+        padding: 18px;
+    }
+
+    .consult-card h3 {
+        font-size: 21px;
+    }
+
+    .consult-card p {
+        font-size: 16px;
+        line-height: 1.7;
+    }
+
+    .phone-btn,
+    .line-btn {
+        display: block;
+        width: 100%;
+        margin: 16px 0 0;
+        padding: 16px 10px;
+        font-size: 18px !important;
+    }
+
+    .line-qr {
+        width: 180px;
+        max-width: 70%;
+        margin: 16px auto;
+    }
+}
+
+
+
+/* iPhone文字サイズ自動調整対策 */
+html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+}

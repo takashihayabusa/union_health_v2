@@ -1042,6 +1042,8 @@ def account_delete(request, pk):
 
     account.delete()
     
+    return redirect("account_list")
+    
 def emergency_region(request):
 
     return render(
@@ -1049,7 +1051,6 @@ def emergency_region(request):
         "checkapp/emergency_region.html"
     )
 
-    return redirect("account_list")
 
 def emergency_send(request):
 
