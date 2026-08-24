@@ -22,6 +22,13 @@ class LineUser(models.Model):
         unique=True
     )
 
+    # 社員番号（Accountとの連携用）
+    login_id = models.CharField(
+        max_length=6,
+        blank=True,
+        null=True
+    )
+
     # 名前
     name = models.CharField(
         max_length=100,

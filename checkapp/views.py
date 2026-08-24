@@ -117,6 +117,7 @@ def register(request):
                 LineUser.objects.update_or_create(
                     user_id=user_id,
                     defaults={
+                        "login_id": login_id,
                         "name": name,
                         "region": region,
                     }
@@ -346,12 +347,66 @@ def handle_message(event):
             )
         return
     elif text == "お願いします":
-        user.step = "wait_phone_number"
+        user.step = ""
         user.save()
 
         reply = TextSendMessage(
-            text="電話番号を入力してください。"
+            text="相談方法を選んでください。",
+            quick_reply=QuickReply(
+                items=[
+                    QuickReplyButton(
+                        action=MessageAction(
+                            label="☎️ 電話",
+                            text="☎️ 電話"
+                        )
+                    ),
+                    QuickReplyButton(
+                        action=MessageAction(
+                            label="LINE",
+                            text="LINEで相談"
+                        )
+                    ),
+                ]
             )
+        )
+
+        line_bot_api.reply_message(
+            event.reply_token,
+            reply
+        )
+        return
+
+    elif text == "☎️ 電話":
+
+        reply = TextSendMessage(
+            text=(
+                "委員長へ電話で相談できます。\\n\\n"
+                "☎️ 090-9495-5990"
+            )
+        )
+
+        line_bot_api.reply_message(
+            event.reply_token,
+            reply
+        )
+        return
+
+    elif text == "LINEで相談":
+
+        image_url = (
+            "https://nonfrigid-smug-candance.ngrok-free.dev"
+            "/static/images/kumaki.jpg"
+        )
+
+        reply = [
+            TextSendMessage(
+                text="委員長のLINEをQRコードから登録してください。"
+            ),
+            ImageSendMessage(
+                original_content_url=image_url,
+                preview_image_url=image_url
+            ),
+        ]
 
         line_bot_api.reply_message(
             event.reply_token,
@@ -412,9 +467,9 @@ def handle_message(event):
             "現在の状況を確認し、救援や電話での対応ができないか確認いたします。\n\n"
             "今の状況が変ったら下記に電話ください\n\n"
             "【委員長】\n"
-            "TEL：090-XXXX-XXXX\n\n"
+            "TEL：090-9495-5990\n\n"
             "【組合】\n"
-            "TEL：092-XXX-XXXX\n\n"
+            "TEL：092-513-9820\n\n"
             )
         )
 
@@ -475,7 +530,7 @@ def handle_message(event):
             text=(
                 "会社には内部通報がありますので\n"
                 "ご利用ください。\n\n"
-                "TEL 092-123-4567"
+                "TEL 092-513-9820"
             )
         )
 
@@ -552,9 +607,9 @@ def handle_message(event):
                 "③ 「現在地を送信」を押してください。"
                 "今の状況が変ったら下記に電話ください\n\n"
                 "【委員長】\n"
-                "TEL：090-XXXX-XXXX\n\n"
+                "TEL：090-9495-5990\n\n"
                 "【組合】\n"
-                "TEL：092-XXX-XXXX\n\n"
+                "TEL：092-513-9820\n\n"
                 
                 
                 )
@@ -1056,15 +1111,66 @@ def emergency_send(request):
 
     region = request.POST.get("region")
 
+    # 有効な組合員の社員番号だけを取得
+    active_login_ids = Account.objects.filter(
+        is_active=True
+    ).values_list("login_id", flat=True)
+
+    # 選択地域 ＋ 有効Accountと結び付いたLINE利用者だけを対象にする
     users = LineUser.objects.filter(
-        region=region
+        region=region,
+        login_id__in=active_login_ids
     ).exclude(
         user_id__startswith="web_"
     )
 
-    # ここには以前動いていた送信処理を書きます
+    message = TextSendMessage(
+        text=(
+            "【緊急生存確認】\n\n"
+            "現在の状況を教えてください。"
+        ),
+        quick_reply=QuickReply(
+            items=[
+                QuickReplyButton(
+                    action=MessageAction(
+                        label="無事です",
+                        text="無事です"
+                    )
+                ),
+                QuickReplyButton(
+                    action=MessageAction(
+                        label="ケガ",
+                        text="ケガ"
+                    )
+                ),
+                QuickReplyButton(
+                    action=MessageAction(
+                        label="危険",
+                        text="危険"
+                    )
+                ),
+            ]
+        )
+    )
 
-    return HttpResponse("緊急生存確認を送信しました")
+    success = 0
+    error = 0
+
+    for user in users:
+        try:
+            line_bot_api.push_message(
+                user.user_id,
+                message
+            )
+            success += 1
+
+        except Exception as e:
+            print("緊急生存確認送信エラー:", e)
+            error += 1
+
+    return HttpResponse(
+        f"緊急生存確認送信完了 地域:{region} 成功:{success}件 失敗:{error}件"
+    )
 
 def clear_test_users(request):
 

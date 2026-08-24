@@ -19,7 +19,7 @@ class AccountRegisterForm(forms.Form):
         max_length=100,
         widget=forms.TextInput(
             attrs={
-                "placeholder": "ひらがなで入力してください",
+                "placeholder": "例：山田 太郎",
             }
         ),
     )

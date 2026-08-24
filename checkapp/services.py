@@ -5,13 +5,19 @@ from linebot.models import (
     MessageAction,
 )
 
-from .models import LineUser
+from .models import LineUser, Account
 from .line_api import line_bot_api
 
 
 def send_health_check_to_all():
 
-    users = LineUser.objects.all()
+    active_login_ids = Account.objects.filter(
+        is_active=True
+    ).values_list("login_id", flat=True)
+
+    users = LineUser.objects.filter(
+        login_id__in=active_login_ids
+    )
 
     message = TextSendMessage(
         text=(
