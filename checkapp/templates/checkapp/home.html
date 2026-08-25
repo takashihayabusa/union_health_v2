@@ -188,6 +188,25 @@
         {% endif %}
 
 
+        <!-- お知らせ配信 -->
+
+        <div class="card">
+
+            <h2>
+                📢 お知らせ配信
+            </h2>
+
+            <form action="{% url 'broadcast_send' %}" method="get">
+
+                <button type="submit">
+                    お知らせを配信
+                </button>
+
+            </form>
+
+        </div>
+
+
         <!-- 健康チェック送信 -->
 
         <div class="card">

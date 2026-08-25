@@ -140,8 +140,8 @@
     </div>
 
 
-    <button class="news-card" type="button"
-        onclick="window.open('{% url 'protected_pdf' 'news_05.pdf' %}', '_blank')">
+    <a class="news-card"
+        href="{% url 'signed_pdf' 'news_05.pdf' %}?token={{ news_05_token|urlencode }}">
 
         <span class="pdf-icon">📄</span>
 
@@ -151,11 +151,11 @@
         </span>
 
         <span class="arrow">›</span>
-    </button>
+    </a>
 
 
-    <button class="news-card" type="button"
-        onclick="window.open('{% url 'protected_pdf' 'news_06.pdf' %}', '_blank')">
+    <a class="news-card"
+        href="{% url 'signed_pdf' 'news_06.pdf' %}?token={{ news_06_token|urlencode }}">
 
         <span class="pdf-icon">📄</span>
 
@@ -165,11 +165,11 @@
         </span>
 
         <span class="arrow">›</span>
-    </button>
+    </a>
 
 
-    <button class="news-card" type="button"
-        onclick="window.open('{% url 'protected_pdf' 'news_07.pdf' %}', '_blank')">
+    <a class="news-card"
+        href="{% url 'signed_pdf' 'news_07.pdf' %}?token={{ news_07_token|urlencode }}">
 
         <span class="pdf-icon">📄</span>
 
@@ -179,7 +179,7 @@
         </span>
 
         <span class="arrow">›</span>
-    </button>
+    </a>
 
 
     <div class="footer">

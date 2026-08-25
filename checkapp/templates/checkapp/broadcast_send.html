@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>全組合員へ配信</title>
+
+    <style>
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            padding: 20px;
+            background: #f4f9ff;
+            font-family: -apple-system, BlinkMacSystemFont,
+                         "Helvetica Neue", "Yu Gothic", sans-serif;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 650px;
+            margin: 20px auto;
+            background: white;
+            padding: 28px;
+            border-radius: 18px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #1976d2;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-top: 22px;
+            margin-bottom: 8px;
+        }
+
+        input[type="text"],
+        textarea,
+        input[type="file"] {
+            width: 100%;
+            padding: 13px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            font-size: 16px;
+        }
+
+        textarea {
+            min-height: 160px;
+            resize: vertical;
+        }
+
+        .pdf-choice {
+            padding: 12px 0;
+            font-size: 17px;
+        }
+
+        .pdf-choice label {
+            display: inline-block;
+            margin: 0 25px 0 5px;
+            font-weight: normal;
+        }
+
+        #pdf-area {
+            display: none;
+            margin-top: 10px;
+        }
+
+        button {
+            width: 100%;
+            margin-top: 28px;
+            padding: 16px;
+            border: none;
+            border-radius: 10px;
+            background: #1976d2;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .note {
+            margin-top: 18px;
+            padding: 14px;
+            background: #fff8e1;
+            border-radius: 10px;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>📢 全組合員へ配信</h1>
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <label for="title">タイトル</label>
+        <input type="text"
+               id="title"
+               name="title"
+               required>
+
+        <label for="content">本文</label>
+        <textarea id="content"
+                  name="content"
+                  required></textarea>
+
+        <label>添付PDF</label>
+
+        <div class="pdf-choice">
+            <input type="radio"
+                   id="pdf-no"
+                   name="has_pdf"
+                   value="no"
+                   checked
+                   onchange="togglePdf()">
+            <label for="pdf-no">なし</label>
+
+            <input type="radio"
+                   id="pdf-yes"
+                   name="has_pdf"
+                   value="yes"
+                   onchange="togglePdf()">
+            <label for="pdf-yes">あり</label>
+        </div>
+
+        <div id="pdf-area">
+            <input type="file"
+                   name="pdf_file"
+                   accept="application/pdf">
+        </div>
+
+        <div class="note">
+            「あり」を選択した場合はPDFファイルを選んでください。
+        </div>
+
+        <button type="submit">
+            配信内容を確認する
+        </button>
+
+    </form>
+
+</div>
+
+<script>
+function togglePdf() {
+    const yes = document.getElementById("pdf-yes").checked;
+    document.getElementById("pdf-area").style.display =
+        yes ? "block" : "none";
+}
+</script>
+
+</body>
+</html>

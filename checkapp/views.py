@@ -11,13 +11,16 @@ from linebot import LineBotApi, WebhookHandler
 from linebot.models import *
 
 from django.conf import settings
-from .models import LineUser, LineLog, Account
+from .models import LineUser, LineLog, Account, BroadcastHistory
 
 from openpyxl.styles import PatternFill, Font
 from datetime import datetime
 import re
 from .services import send_health_check_to_all
 from pathlib import Path
+from django.core import signing
+from django.core.files.storage import default_storage
+from django.core.files.base import ContentFile
 
 
 print("CHECKAPP 起動")
@@ -1003,6 +1006,12 @@ def login_view(request):
                     if next_page == "roukin":
                         return redirect("roukin")
 
+                    if next_page == "consult":
+                        return redirect("consult")
+
+                    if next_page == "broadcast_history":
+                        return redirect("broadcast_history")
+
 
                     return redirect("union_home")
 
@@ -1214,19 +1223,85 @@ def protected_pdf(request, filename):
     if not pdf_path.exists():
         raise Http404("PDFが見つかりません")
 
-    return FileResponse(
+    response = FileResponse(
         open(pdf_path, "rb"),
         content_type="application/pdf"
     )
+    response["Content-Disposition"] = f'inline; filename="{filename}"'
+    return response
     
+def signed_pdf(request, filename):
+
+    # 組合ニュースPDFのみ許可
+    allowed_signed_files = {
+        "news_05.pdf",
+        "news_06.pdf",
+        "news_07.pdf",
+        "mycar.pdf",
+        "roukin.pdf",
+    }
+
+    if filename not in allowed_signed_files:
+        raise Http404("PDFが見つかりません")
+
+    token = request.GET.get("token")
+
+    if not token:
+        raise Http404("無効なPDFリンクです")
+
+    try:
+        signed_filename = signing.loads(
+            token,
+            salt="union-pdf",
+            max_age=300
+        )
+    except signing.BadSignature:
+        raise Http404("PDFリンクが無効または期限切れです")
+
+    if signed_filename != filename:
+        raise Http404("PDFが見つかりません")
+
+    pdf_path = Path(settings.BASE_DIR) / "protected_pdfs" / filename
+
+    if not pdf_path.exists():
+        raise Http404("PDFが見つかりません")
+
+    response = FileResponse(
+        open(pdf_path, "rb"),
+        content_type="application/pdf"
+    )
+    response["Content-Disposition"] = f'inline; filename="{filename}"'
+    return response
+
+
 def union_news(request):
 
     if "account_id" not in request.session:
         return redirect("/login/?next=news")
 
+    news_05_token = signing.dumps(
+        "news_05.pdf",
+        salt="union-pdf"
+    )
+
+    news_06_token = signing.dumps(
+        "news_06.pdf",
+        salt="union-pdf"
+    )
+
+    news_07_token = signing.dumps(
+        "news_07.pdf",
+        salt="union-pdf"
+    )
+
     return render(
         request,
-        "checkapp/news.html"
+        "checkapp/news.html",
+        {
+            "news_05_token": news_05_token,
+            "news_06_token": news_06_token,
+            "news_07_token": news_07_token,
+        }
     )
 
     
@@ -1239,9 +1314,17 @@ def mycar(request):
     if "account_id" not in request.session:
         return redirect("/login/?next=mycar")
 
+    mycar_token = signing.dumps(
+        "mycar.pdf",
+        salt="union-pdf"
+    )
+
     return render(
         request,
-        "checkapp/mycar.html"
+        "checkapp/mycar.html",
+        {
+            "mycar_token": mycar_token,
+        }
     )
 def roukin(request):
 
@@ -1249,5 +1332,515 @@ def roukin(request):
     if "account_id" not in request.session:
         return redirect("/login/?next=roukin")
 
+    roukin_token = signing.dumps(
+        "roukin.pdf",
+        salt="union-pdf"
+    )
+
     # ログイン済みならNISA・フリーローン専用ページ
-    return render(request, "checkapp/roukin.html")
+    return render(
+        request,
+        "checkapp/roukin.html",
+        {
+            "roukin_token": roukin_token,
+        }
+    )
+
+def consult(request):
+
+    # ログインしていなければログイン画面へ
+    if "account_id" not in request.session:
+        return redirect("/login/?next=consult")
+
+    # ログイン済みなら相談専用ページ
+    return render(
+        request,
+        "checkapp/consult.html"
+    )
+
+
+def broadcast_history(request):
+
+    # ログインしていなければログイン画面へ
+    if "account_id" not in request.session:
+        return redirect("/login/?next=broadcast_history")
+
+    # 新しい配信から順番に取得
+    broadcasts = BroadcastHistory.objects.all().order_by("-sent_at")
+
+    return render(
+        request,
+        "checkapp/broadcast_history.html",
+        {
+            "broadcasts": broadcasts,
+        }
+    )
+
+
+def broadcast_send(request):
+
+    # 入力後、「配信内容を確認する」が押された場合
+    if request.method == "POST":
+
+        title = request.POST.get("title", "").strip()
+        content = request.POST.get("content", "").strip()
+        has_pdf = request.POST.get("has_pdf", "no")
+        pdf_file = request.FILES.get("pdf_file")
+        pdf_name = ""
+        temp_pdf_path = ""
+
+        # PDFありの場合は一時保存
+        if has_pdf == "yes" and pdf_file:
+
+            # PDF以外は受け付けない
+            if not pdf_file.name.lower().endswith(".pdf"):
+                return HttpResponse(
+                    "PDFファイルを選択してください。",
+                    status=400
+                )
+
+            pdf_name = Path(pdf_file.name).name
+
+            temp_pdf_path = default_storage.save(
+                f"broadcast_temp/{pdf_name}",
+                ContentFile(pdf_file.read())
+            )
+
+            # 確認後の配信処理で使えるようセッションへ保存
+            request.session["broadcast_temp_pdf"] = temp_pdf_path
+            request.session["broadcast_pdf_name"] = pdf_name
+
+        else:
+            request.session.pop("broadcast_temp_pdf", None)
+            request.session.pop("broadcast_pdf_name", None)
+
+        # 入力内容を確認画面へ渡す
+        return render(
+            request,
+            "checkapp/broadcast_confirm.html",
+            {
+                "title": title,
+                "content": content,
+                "has_pdf": has_pdf,
+                "pdf_name": pdf_name,
+            }
+        )
+
+    # 最初は入力画面を表示
+    return render(
+        request,
+        "checkapp/broadcast_send.html"
+    )
+
+
+# =====================================
+# 配信用PDF表示
+# =====================================
+def broadcast_pdf(request, filename):
+
+    safe_filename = Path(filename).name
+
+    # LINE配信用の署名トークンを確認
+    token = request.GET.get("token")
+
+    if not token:
+        raise Http404("無効なPDFリンクです")
+
+    try:
+        signed_filename = signing.loads(
+            token,
+            salt="broadcast-pdf"
+        )
+    except signing.BadSignature:
+        raise Http404("PDFリンクが無効です")
+
+    if signed_filename != safe_filename:
+        raise Http404("PDFが見つかりません")
+
+    pdf_path = (
+        Path(settings.BASE_DIR)
+        / "protected_pdfs"
+        / "broadcasts"
+        / safe_filename
+    )
+
+    if pdf_path.suffix.lower() != ".pdf":
+        raise Http404("PDFが見つかりません")
+
+    if not pdf_path.exists():
+        raise Http404("PDFが見つかりません")
+
+    # 案内ページからPDF本体へトークンを引き継ぐ
+    return render(
+        request,
+        "checkapp/broadcast_pdf_open.html",
+        {
+            "filename": safe_filename,
+            "token": token,
+        }
+    )
+
+
+# =====================================
+# 通常配信・自分だけテスト送信
+# =====================================
+def broadcast_test_send(request):
+
+    if request.method != "POST":
+        return redirect("broadcast_send")
+
+    # テスト送信先はiPhone確認用の社員番号126280だけ
+    test_user = LineUser.objects.filter(
+        login_id="126280"
+    ).exclude(
+        user_id__startswith="web_"
+    ).first()
+
+    if not test_user:
+        return HttpResponse(
+            "テスト送信先（社員番号126280）が見つかりません。",
+            status=404
+        )
+
+    title = request.POST.get("title", "").strip()
+    content = request.POST.get("content", "").strip()
+    has_pdf = request.POST.get("has_pdf", "no")
+
+    if not title or not content:
+        return HttpResponse(
+            "タイトルまたは本文がありません。",
+            status=400
+        )
+
+    message_text = f"【{title}】\n\n{content}"
+
+    # PDFありの場合
+    if has_pdf == "yes":
+
+        temp_pdf_path = request.session.get(
+            "broadcast_temp_pdf"
+        )
+        pdf_name = request.session.get(
+            "broadcast_pdf_name"
+        )
+
+        if not temp_pdf_path or not pdf_name:
+            return HttpResponse(
+                "PDFが見つかりません。入力画面からやり直してください。",
+                status=400
+            )
+
+        # 一時保存PDFの実際の場所
+        source_path = Path(
+            default_storage.path(temp_pdf_path)
+        )
+
+        if not source_path.exists():
+            return HttpResponse(
+                "一時保存したPDFが見つかりません。",
+                status=404
+            )
+
+        # 配信用PDFフォルダへ正式保存
+        safe_name = Path(pdf_name).name
+
+        destination_path = (
+            Path(settings.BASE_DIR)
+            / "protected_pdfs"
+            / "broadcasts"
+            / safe_name
+        )
+
+        destination_path.write_bytes(
+            source_path.read_bytes()
+        )
+
+        # 配信PDF専用の署名トークンを作る
+        pdf_token = signing.dumps(
+            safe_name,
+            salt="broadcast-pdf"
+        )
+
+        # トークン付きPDF案内ページURLを作る
+        # LINEから開ける公開URLを使用
+        public_base_url = "https://nonfrigid-smug-candance.ngrok-free.dev"
+
+        pdf_url = (
+            f"{public_base_url}/broadcast-pdf/"
+            f"{safe_name}/?token={pdf_token}"
+        )
+
+        message_text += (
+            "\n\n▼ PDFはこちら\n"
+            + pdf_url
+        )
+
+    # 126280だけへ送信
+    try:
+        line_bot_api.push_message(
+            test_user.user_id,
+            TextSendMessage(text=message_text)
+        )
+
+    except Exception as e:
+        print("通常配信テスト送信エラー:", e)
+
+        return HttpResponse(
+            "LINEへのテスト送信に失敗しました。",
+            status=500
+        )
+
+    return HttpResponse(
+        "社員番号126280へのテスト配信が完了しました。"
+    )
+
+
+# =====================================
+# 配信用PDF本体
+# =====================================
+def broadcast_pdf_file(request, filename):
+
+    safe_filename = Path(filename).name
+
+    # LINE配信用の署名トークンを確認
+    token = request.GET.get("token")
+
+    if not token:
+        raise Http404("無効なPDFリンクです")
+
+    try:
+        signed_filename = signing.loads(
+            token,
+            salt="broadcast-pdf"
+        )
+    except signing.BadSignature:
+        raise Http404("PDFリンクが無効です")
+
+    if signed_filename != safe_filename:
+        raise Http404("PDFが見つかりません")
+
+    pdf_path = (
+        Path(settings.BASE_DIR)
+        / "protected_pdfs"
+        / "broadcasts"
+        / safe_filename
+    )
+
+    if pdf_path.suffix.lower() != ".pdf":
+        raise Http404("PDFが見つかりません")
+
+    if not pdf_path.exists():
+        raise Http404("PDFが見つかりません")
+
+    response = FileResponse(
+        open(pdf_path, "rb"),
+        content_type="application/pdf"
+    )
+
+    # Android対策：PDF本体はダウンロード方式
+    response["Content-Disposition"] = (
+        f'attachment; filename="document.pdf"'
+    )
+
+    return response
+
+
+# =====================================
+# お知らせ・正式全組合員配信
+# =====================================
+def broadcast_all_send(request):
+
+    if request.method != "POST":
+        return redirect("broadcast_send")
+
+    title = request.POST.get("title", "").strip()
+    content = request.POST.get("content", "").strip()
+    has_pdf = request.POST.get("has_pdf", "no")
+
+    if not title or not content:
+        return HttpResponse(
+            "タイトルまたは本文がありません。",
+            status=400
+        )
+
+    # 現在有効な組合員の社員番号だけを取得
+    active_login_ids = Account.objects.filter(
+        is_active=True
+    ).values_list(
+        "login_id",
+        flat=True
+    )
+
+    # 有効組合員と社員番号が一致するLINE登録者だけを対象にする
+    users = LineUser.objects.filter(
+        login_id__in=active_login_ids
+    ).exclude(
+        user_id__startswith="web_"
+    )
+
+    if not users.exists():
+        return HttpResponse(
+            "配信対象の組合員がいません。",
+            status=404
+        )
+
+    message_text = f"【{title}】\n\n{content}"
+
+    # PDFありの場合
+    if has_pdf == "yes":
+
+        temp_pdf_path = request.session.get(
+            "broadcast_temp_pdf"
+        )
+        pdf_name = request.session.get(
+            "broadcast_pdf_name"
+        )
+
+        if not temp_pdf_path or not pdf_name:
+            return HttpResponse(
+                "PDFが見つかりません。入力画面からやり直してください。",
+                status=400
+            )
+
+        source_path = Path(
+            default_storage.path(temp_pdf_path)
+        )
+
+        if not source_path.exists():
+            return HttpResponse(
+                "一時保存したPDFが見つかりません。",
+                status=404
+            )
+
+        safe_name = Path(pdf_name).name
+
+        destination_path = (
+            Path(settings.BASE_DIR)
+            / "protected_pdfs"
+            / "broadcasts"
+            / safe_name
+        )
+
+        destination_path.parent.mkdir(
+            parents=True,
+            exist_ok=True
+        )
+
+        destination_path.write_bytes(
+            source_path.read_bytes()
+        )
+
+        # Android・iPhoneで確認済みの署名トークン方式
+        pdf_token = signing.dumps(
+            safe_name,
+            salt="broadcast-pdf"
+        )
+
+        # LINEから開ける公開URLを使用
+        public_base_url = "https://nonfrigid-smug-candance.ngrok-free.dev"
+
+        pdf_url = (
+            f"{public_base_url}/broadcast-pdf/"
+            f"{safe_name}/?token={pdf_token}"
+        )
+
+        message_text += (
+            "\n\n▼ PDFはこちら\n"
+            + pdf_url
+        )
+
+    success = 0
+    error = 0
+
+    # 有効組合員だけへ配信
+    for user in users:
+
+        try:
+            line_bot_api.push_message(
+                user.user_id,
+                TextSendMessage(text=message_text)
+            )
+            success += 1
+
+        except Exception as e:
+            print(
+                "お知らせ配信エラー:",
+                user.login_id,
+                e
+            )
+            error += 1
+
+    # 正式配信の履歴を保存
+    BroadcastHistory.objects.create(
+        title=title,
+        content=content,
+        pdf_filename=pdf_name if has_pdf == "yes" else ""
+    )
+
+    return HttpResponse(
+        f"全組合員への配信が完了しました。"
+        f" 成功：{success}件 / 失敗：{error}件"
+    )
+
+
+# =====================================
+# お知らせ・全組合員配信 最終確認
+# =====================================
+def broadcast_all_confirm(request):
+
+    if request.method != "POST":
+        return redirect("broadcast_send")
+
+    title = request.POST.get("title", "").strip()
+    content = request.POST.get("content", "").strip()
+    has_pdf = request.POST.get("has_pdf", "no")
+
+    if not title or not content:
+        return HttpResponse(
+            "タイトルまたは本文がありません。",
+            status=400
+        )
+
+    # 現在有効な組合員
+    active_login_ids = Account.objects.filter(
+        is_active=True
+    ).values_list(
+        "login_id",
+        flat=True
+    )
+
+    # 実際にLINE配信できる対象者
+    users = LineUser.objects.filter(
+        login_id__in=active_login_ids
+    ).exclude(
+        user_id__startswith="web_"
+    )
+
+    target_count = users.count()
+
+    # PDF情報はセッションに保存済みのものを使用
+    pdf_name = ""
+
+    if has_pdf == "yes":
+        pdf_name = request.session.get(
+            "broadcast_pdf_name",
+            ""
+        )
+
+        if not pdf_name:
+            return HttpResponse(
+                "PDFが見つかりません。入力画面からやり直してください。",
+                status=400
+            )
+
+    return render(
+        request,
+        "checkapp/broadcast_all_confirm.html",
+        {
+            "title": title,
+            "content": content,
+            "has_pdf": has_pdf,
+            "pdf_name": pdf_name,
+            "target_count": target_count,
+        }
+    )

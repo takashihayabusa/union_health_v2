@@ -52,7 +52,7 @@
     <h1>NISA・フリーローン</h1>
 
     <a class="pdf-button"
-        href="{% url 'protected_pdf' 'roukin.pdf' %}">
+        href="{% url 'signed_pdf' 'roukin.pdf' %}?token={{ roukin_token|urlencode }}">
         NISA・フリーローンを見る
     </a>
 

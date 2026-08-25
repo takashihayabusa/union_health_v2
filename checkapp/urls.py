@@ -67,8 +67,17 @@ urlpatterns = [
     name="account_delete",
 ),
     path("protected-pdf/<str:filename>/", views.protected_pdf, name="protected_pdf"),
+    path("signed-pdf/<str:filename>/", views.signed_pdf, name="signed_pdf"),
     
     path("union-news/", views.union_news, name="union_news"),
     path("mycar/", views.mycar, name="mycar"),
     path("roukin/", views.roukin, name="roukin"),
+    path("consult/", views.consult, name="consult"),
+    path("broadcast-history/", views.broadcast_history, name="broadcast_history"),
+    path("broadcast-send/", views.broadcast_send, name="broadcast_send"),
+    path("broadcast-pdf/<str:filename>/", views.broadcast_pdf, name="broadcast_pdf"),
+    path("broadcast-pdf-file/<str:filename>/", views.broadcast_pdf_file, name="broadcast_pdf_file"),
+    path("broadcast-test-send/", views.broadcast_test_send, name="broadcast_test_send"),
+    path("broadcast-all-send/", views.broadcast_all_send, name="broadcast_all_send"),
+    path("broadcast-all-confirm/", views.broadcast_all_confirm, name="broadcast_all_confirm"),
     ] 

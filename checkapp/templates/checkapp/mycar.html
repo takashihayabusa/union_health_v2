@@ -49,7 +49,7 @@
     <h1>🚗 マイカー共済</h1>
 
     <a class="pdf-button"
-       href="{% url 'protected_pdf' 'mycar.pdf' %}">
+       href="{% url 'signed_pdf' 'mycar.pdf' %}?token={{ mycar_token|urlencode }}">
         マイカー共済を見る
     </a>
 

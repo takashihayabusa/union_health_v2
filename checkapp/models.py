@@ -159,3 +159,31 @@ class Account(models.Model):
 
 def __str__(self):
     return f"{self.login_id} {self.name}"
+
+# =====================================
+# 過去の配信
+# =====================================
+class BroadcastHistory(models.Model):
+
+    # 配信タイトル
+    title = models.CharField(
+        max_length=200
+    )
+
+    # 配信内容
+    content = models.TextField()
+
+    # 添付PDFのファイル名（PDFなしの場合は空）
+    pdf_filename = models.CharField(
+        max_length=255,
+        blank=True,
+        default=""
+    )
+
+    # 配信日時
+    sent_at = models.DateTimeField(
+        auto_now_add=True
+    )
+
+    def __str__(self):
+        return self.title
