@@ -1368,6 +1368,24 @@ def broadcast_history(request):
     # 新しい配信から順番に取得
     broadcasts = BroadcastHistory.objects.all().order_by("-sent_at")
 
+    # PDF付き配信には、過去の配信画面から開くための
+    # 署名トークン付きURLを作成する
+    for broadcast in broadcasts:
+        broadcast.pdf_url = ""
+
+        if broadcast.pdf_filename:
+            safe_name = Path(broadcast.pdf_filename).name
+
+            pdf_token = signing.dumps(
+                safe_name,
+                salt="broadcast-pdf"
+            )
+
+            broadcast.pdf_url = (
+                f"/broadcast-pdf/{safe_name}/"
+                f"?token={pdf_token}"
+            )
+
     return render(
         request,
         "checkapp/broadcast_history.html",
