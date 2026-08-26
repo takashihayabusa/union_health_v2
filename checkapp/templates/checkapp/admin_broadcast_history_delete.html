@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>過去の配信を削除</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 20px;
+            background: #f5f7f8;
+            font-family: -apple-system, BlinkMacSystemFont,
+                         "Helvetica Neue", "Yu Gothic",
+                         "Hiragino Kaku Gothic ProN", sans-serif;
+            color: #222;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 520px;
+            margin: 0 auto;
+        }
+
+        .header, .card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+
+        .header {
+            text-align: center;
+        }
+
+        .header h1 {
+            margin: 0 0 10px;
+            font-size: 25px;
+        }
+
+        .header p {
+            margin: 0;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .card {
+            display: flex;
+            gap: 14px;
+            align-items: flex-start;
+        }
+
+        .card input[type="checkbox"] {
+            width: 24px;
+            height: 24px;
+            margin-top: 3px;
+        }
+
+        .info {
+            flex: 1;
+        }
+
+        .date {
+            font-size: 13px;
+            color: #888;
+            margin-bottom: 6px;
+        }
+
+        .title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .content {
+            font-size: 15px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+        }
+
+        .delete-button {
+            width: 100%;
+            border: 0;
+            border-radius: 12px;
+            padding: 15px;
+            background: #c62828;
+            color: white;
+            font-size: 17px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 5px;
+        }
+
+        .back {
+            display: block;
+            text-align: center;
+            margin-top: 18px;
+            color: #555;
+            text-decoration: none;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="header">
+        <h1>🗑️ 過去の配信を削除</h1>
+        <p>削除したい配信を選択してください</p>
+    </div>
+
+    <form method="post"
+          action="{% url 'admin_broadcast_history_delete_confirm' %}">
+        {% csrf_token %}
+
+        {% for broadcast in broadcasts %}
+
+            <label class="card">
+
+                <input type="checkbox"
+                       name="broadcast_ids"
+                       value="{{ broadcast.id }}">
+
+                <div class="info">
+
+                    <div class="date">
+                        {{ broadcast.sent_at|date:"Y年n月j日 H:i" }}
+                    </div>
+
+                    <div class="title">
+                        {{ broadcast.title }}
+                    </div>
+
+                    <div class="content">{{ broadcast.content }}</div>
+
+                    {% if broadcast.pdf_url %}
+                        <div style="margin-top:10px;">
+                            <a href="{{ broadcast.pdf_url }}"
+                               target="_blank"
+                               onclick="event.stopPropagation();"
+                               style="font-weight:bold; text-decoration:none;">
+                                📎 PDFあり
+                            </a>
+                        </div>
+                    {% endif %}
+
+                </div>
+
+            </label>
+
+        {% empty %}
+
+            <div class="card">
+                削除できる配信はありません。
+            </div>
+
+        {% endfor %}
+
+        {% if broadcasts %}
+            <button class="delete-button" type="submit">
+                選択した配信を削除
+            </button>
+        {% endif %}
+
+    </form>
+
+    <a class="back" href="{% url 'admin_broadcast_history' %}">
+        ← 過去の配信に戻る
+    </a>
+
+</div>
+
+</body>
+</html>

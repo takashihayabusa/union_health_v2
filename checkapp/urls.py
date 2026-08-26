@@ -74,6 +74,22 @@ urlpatterns = [
     path("roukin/", views.roukin, name="roukin"),
     path("consult/", views.consult, name="consult"),
     path("broadcast-history/", views.broadcast_history, name="broadcast_history"),
+    path("admin-broadcast-history/", views.admin_broadcast_history, name="admin_broadcast_history"),
+    path(
+        "admin-broadcast-history/delete/",
+        views.admin_broadcast_history_delete,
+        name="admin_broadcast_history_delete"
+    ),
+    path(
+        "admin-broadcast-history/delete-confirm/",
+        views.admin_broadcast_history_delete_confirm,
+        name="admin_broadcast_history_delete_confirm"
+    ),
+    path(
+        "admin-broadcast-history/delete-execute/",
+        views.admin_broadcast_history_delete_execute,
+        name="admin_broadcast_history_delete_execute"
+    ),
     path("broadcast-send/", views.broadcast_send, name="broadcast_send"),
     path("broadcast-pdf/<str:filename>/", views.broadcast_pdf, name="broadcast_pdf"),
     path("broadcast-pdf-file/<str:filename>/", views.broadcast_pdf_file, name="broadcast_pdf_file"),

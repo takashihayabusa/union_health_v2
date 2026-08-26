@@ -1863,3 +1863,139 @@ def broadcast_all_confirm(request):
             "target_count": target_count,
         }
     )
+
+
+# =====================================
+# 管理画面専用・過去の配信
+# =====================================
+def admin_broadcast_history(request):
+
+    # 管理画面から利用する過去配信一覧
+    broadcasts = BroadcastHistory.objects.all().order_by("-sent_at")
+
+    # PDF付き配信の署名URLを作成
+    for broadcast in broadcasts:
+        broadcast.pdf_url = ""
+
+        if broadcast.pdf_filename:
+            safe_name = Path(broadcast.pdf_filename).name
+
+            pdf_token = signing.dumps(
+                safe_name,
+                salt="broadcast-pdf"
+            )
+
+            broadcast.pdf_url = (
+                f"/broadcast-pdf/{safe_name}/"
+                f"?token={pdf_token}"
+            )
+
+    return render(
+        request,
+        "checkapp/admin_broadcast_history.html",
+        {
+            "broadcasts": broadcasts,
+        }
+    )
+
+
+# =====================================
+# 管理画面専用・過去配信の削除選択
+# =====================================
+def admin_broadcast_history_delete(request):
+
+    broadcasts = BroadcastHistory.objects.all().order_by("-sent_at")
+
+    # 削除選択画面でもPDFを確認できるようにする
+    for broadcast in broadcasts:
+        broadcast.pdf_url = ""
+
+        if broadcast.pdf_filename:
+            safe_name = Path(broadcast.pdf_filename).name
+
+            pdf_token = signing.dumps(
+                safe_name,
+                salt="broadcast-pdf"
+            )
+
+            broadcast.pdf_url = (
+                f"/broadcast-pdf/{safe_name}/"
+                f"?token={pdf_token}"
+            )
+
+    return render(
+        request,
+        "checkapp/admin_broadcast_history_delete.html",
+        {
+            "broadcasts": broadcasts,
+        }
+    )
+
+
+# =====================================
+# 管理画面専用・過去配信の削除確認
+# =====================================
+def admin_broadcast_history_delete_confirm(request):
+
+    if request.method != "POST":
+        return redirect("admin_broadcast_history_delete")
+
+    selected_ids = request.POST.getlist("broadcast_ids")
+
+    if not selected_ids:
+        return redirect("admin_broadcast_history_delete")
+
+    broadcasts = BroadcastHistory.objects.filter(
+        id__in=selected_ids
+    ).order_by("-sent_at")
+
+    return render(
+        request,
+        "checkapp/admin_broadcast_history_delete_confirm.html",
+        {
+            "broadcasts": broadcasts,
+            "selected_ids": selected_ids,
+        }
+    )
+
+
+# =====================================
+# 管理画面専用・過去配信の削除実行
+# =====================================
+def admin_broadcast_history_delete_execute(request):
+
+    if request.method != "POST":
+        return redirect("admin_broadcast_history")
+
+    selected_ids = request.POST.getlist("broadcast_ids")
+
+    if not selected_ids:
+        return redirect("admin_broadcast_history_delete")
+
+    broadcasts = BroadcastHistory.objects.filter(
+        id__in=selected_ids
+    )
+
+    for broadcast in broadcasts:
+
+        # PDF付き配信の場合はPDF本体も削除
+        if broadcast.pdf_filename:
+
+            safe_name = Path(
+                broadcast.pdf_filename
+            ).name
+
+            pdf_path = (
+                Path(settings.BASE_DIR)
+                / "protected_pdfs"
+                / "broadcasts"
+                / safe_name
+            )
+
+            if pdf_path.exists() and pdf_path.is_file():
+                pdf_path.unlink()
+
+        # 配信履歴を削除
+        broadcast.delete()
+
+    return redirect("admin_broadcast_history")

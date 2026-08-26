@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>過去の配信</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 20px;
+            background: #f5f7f8;
+            font-family: -apple-system, BlinkMacSystemFont,
+                         "Helvetica Neue", "Yu Gothic",
+                         "Hiragino Kaku Gothic ProN", sans-serif;
+            color: #222;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 520px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            border-radius: 16px;
+            padding: 24px 18px;
+            text-align: center;
+            margin-bottom: 18px;
+        }
+
+        .header h1 {
+            margin: 0 0 8px;
+            font-size: 26px;
+        }
+
+        .header p {
+            margin: 0;
+            font-size: 15px;
+            color: #666;
+        }
+
+        .broadcast-card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+
+        .date {
+            font-size: 13px;
+            color: #888;
+            margin-bottom: 7px;
+        }
+
+        .title {
+            font-size: 19px;
+            font-weight: bold;
+            margin-bottom: 12px;
+        }
+
+        .content {
+            font-size: 16px;
+            line-height: 1.7;
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+        }
+
+        .empty {
+            background: white;
+            border-radius: 16px;
+            padding: 35px 20px;
+            text-align: center;
+            font-size: 16px;
+            color: #666;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="header">
+        <h1>📢 過去の配信</h1>
+        <p>組合から配信したお知らせをご覧いただけます</p>
+
+        <a href="{% url 'admin_broadcast_history_delete' %}"
+           style="
+               display:block;
+               margin-top:18px;
+               padding:13px;
+               background:#c62828;
+               color:white;
+               border-radius:10px;
+               text-decoration:none;
+               font-weight:bold;
+           ">
+            削除する
+        </a>
+    </div>
+
+    {% for broadcast in broadcasts %}
+
+        <div class="broadcast-card">
+
+            <div class="date">
+                {{ broadcast.sent_at|date:"Y年n月j日 H:i" }}
+            </div>
+
+            <div class="title">
+                {{ broadcast.title }}
+            </div>
+
+            <div class="content">{{ broadcast.content }}</div>
+
+            {% if broadcast.pdf_url %}
+                <div style="margin-top: 14px;">
+                    <a href="{{ broadcast.pdf_url }}"
+                       style="font-size:16px; font-weight:bold; text-decoration:none;">
+                        📎 PDF
+                    </a>
+                </div>
+            {% endif %}
+
+        </div>
+
+    {% empty %}
+
+        <div class="empty">
+            現在、過去の配信はありません。
+        </div>
+
+    {% endfor %}
+
+</div>
+
+</body>
+</html>
