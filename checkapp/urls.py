@@ -96,4 +96,12 @@ urlpatterns = [
     path("broadcast-test-send/", views.broadcast_test_send, name="broadcast_test_send"),
     path("broadcast-all-send/", views.broadcast_all_send, name="broadcast_all_send"),
     path("broadcast-all-confirm/", views.broadcast_all_confirm, name="broadcast_all_confirm"),
+    path("admin-union-news/", views.admin_union_news, name="admin_union_news"),
+    path("admin-union-news/add/", views.admin_union_news_add, name="admin_union_news_add"),
+    path("admin-union-news/<int:news_id>/edit/", views.admin_union_news_edit, name="admin_union_news_edit"),
+    path("admin-union-news/<int:news_id>/delete/", views.admin_union_news_delete, name="admin_union_news_delete"),
+
+
+
+
     ] 

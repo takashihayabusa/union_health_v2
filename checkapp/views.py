@@ -11,7 +11,7 @@ from linebot import LineBotApi, WebhookHandler
 from linebot.models import *
 
 from django.conf import settings
-from .models import LineUser, LineLog, Account, BroadcastHistory
+from .models import LineUser, LineLog, Account, BroadcastHistory, UnionNews
 
 from openpyxl.styles import PatternFill, Font
 from datetime import datetime
@@ -1233,11 +1233,16 @@ def protected_pdf(request, filename):
     
 def signed_pdf(request, filename):
 
-    # 組合ニュースPDFのみ許可
-    allowed_signed_files = {
-        "news_05.pdf",
-        "news_06.pdf",
-        "news_07.pdf",
+    # 組合ニュース管理に登録されているPDFを許可
+    news_pdf_files = set(
+        UnionNews.objects.values_list(
+            "pdf_filename",
+            flat=True
+        )
+    )
+
+    # その他の固定PDF
+    allowed_signed_files = news_pdf_files | {
         "mycar.pdf",
         "roukin.pdf",
     }
@@ -1280,35 +1285,29 @@ def union_news(request):
     if "account_id" not in request.session:
         return redirect("/login/?next=news")
 
-    news_05_token = signing.dumps(
-        "news_05.pdf",
-        salt="union-pdf"
-    )
+    news_items = []
 
-    news_06_token = signing.dumps(
-        "news_06.pdf",
-        salt="union-pdf"
-    )
+    for news in UnionNews.objects.all().order_by("-created_at", "-id"):
 
-    news_07_token = signing.dumps(
-        "news_07.pdf",
-        salt="union-pdf"
-    )
+        token = signing.dumps(
+            news.pdf_filename,
+            salt="union-pdf"
+        )
+
+        news_items.append({
+            "id": news.id,
+            "title": news.title,
+            "pdf_filename": news.pdf_filename,
+            "token": token,
+        })
 
     return render(
         request,
         "checkapp/news.html",
         {
-            "news_05_token": news_05_token,
-            "news_06_token": news_06_token,
-            "news_07_token": news_07_token,
+            "news_items": news_items,
         }
     )
-
-    
-# =====================================
-# マイカー共済 専用ページ
-# =====================================
 
 def mycar(request):
 
@@ -1999,3 +1998,171 @@ def admin_broadcast_history_delete_execute(request):
         broadcast.delete()
 
     return redirect("admin_broadcast_history")
+
+
+# =====================================
+# 組合ニュース管理
+# =====================================
+def admin_union_news(request):
+
+    news_items = UnionNews.objects.all().order_by(
+        "-created_at",
+        "-id"
+    )
+
+    return render(
+        request,
+        "checkapp/admin_union_news.html",
+        {
+            "news_items": news_items,
+        }
+    )
+
+
+# =====================================
+# 組合ニュース 新規追加
+# =====================================
+def admin_union_news_add(request):
+
+    error = ""
+
+    if request.method == "POST":
+
+        title = request.POST.get("title", "").strip()
+        pdf_file = request.FILES.get("pdf_file")
+
+        # 題名は必須
+        if not title:
+            error = "題名を入力してください。"
+
+        # 新しいPDFは必須
+        elif not pdf_file:
+            error = "新しいPDFを選択してください。"
+
+        # PDF以外は登録不可
+        elif not pdf_file.name.lower().endswith(".pdf"):
+            error = "PDFファイルを選択してください。"
+
+        else:
+            # ファイル名を自動生成
+            import uuid
+
+            filename = "union_news_" + uuid.uuid4().hex + ".pdf"
+
+            pdf_dir = Path(settings.BASE_DIR) / "protected_pdfs"
+            pdf_dir.mkdir(parents=True, exist_ok=True)
+
+            pdf_path = pdf_dir / filename
+
+            # PDF保存
+            with open(pdf_path, "wb") as destination:
+                for chunk in pdf_file.chunks():
+                    destination.write(chunk)
+
+            # データベース登録
+            UnionNews.objects.create(
+                title=title,
+                pdf_filename=filename
+            )
+
+            return redirect("admin_union_news")
+
+    return render(
+        request,
+        "checkapp/admin_union_news_add.html",
+        {
+            "error": error,
+        }
+    )
+
+
+# =====================================
+# 組合ニュース 変更
+# =====================================
+def admin_union_news_edit(request, news_id):
+
+    news = get_object_or_404(UnionNews, id=news_id)
+    error = ""
+
+    if request.method == "POST":
+
+        title = request.POST.get("title", "").strip()
+        pdf_file = request.FILES.get("pdf_file")
+
+        if not title:
+            error = "題名を入力してください。"
+
+        elif not pdf_file:
+            error = "新しいPDFを選択してください。"
+
+        elif not pdf_file.name.lower().endswith(".pdf"):
+            error = "PDFファイルを選択してください。"
+
+        else:
+            import uuid
+
+            old_filename = news.pdf_filename
+
+            new_filename = "union_news_" + uuid.uuid4().hex + ".pdf"
+
+            pdf_dir = Path(settings.BASE_DIR) / "protected_pdfs"
+            pdf_dir.mkdir(parents=True, exist_ok=True)
+
+            new_pdf_path = pdf_dir / new_filename
+
+            # 新しいPDFを保存
+            with open(new_pdf_path, "wb") as destination:
+                for chunk in pdf_file.chunks():
+                    destination.write(chunk)
+
+            # データベースを新しい内容へ変更
+            news.title = title
+            news.pdf_filename = new_filename
+            news.save()
+
+            # 変更成功後に古いPDFを削除
+            old_pdf_path = pdf_dir / old_filename
+
+            if old_pdf_path.exists():
+                old_pdf_path.unlink()
+
+            return redirect("admin_union_news")
+
+    return render(
+        request,
+        "checkapp/admin_union_news_edit.html",
+        {
+            "news": news,
+            "error": error,
+        }
+    )
+
+
+# =====================================
+# 組合ニュース 削除
+# =====================================
+def admin_union_news_delete(request, news_id):
+
+    news = get_object_or_404(UnionNews, id=news_id)
+
+    if request.method == "POST":
+
+        pdf_dir = Path(settings.BASE_DIR) / "protected_pdfs"
+        pdf_path = pdf_dir / news.pdf_filename
+
+        # 先にデータベースから削除
+        news.delete()
+
+        # 登録されていたPDFも削除
+        if pdf_path.exists():
+            pdf_path.unlink()
+
+        return redirect("admin_union_news")
+
+    return render(
+        request,
+        "checkapp/admin_union_news_delete.html",
+        {
+            "news": news,
+        }
+    )

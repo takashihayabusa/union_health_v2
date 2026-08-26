@@ -140,46 +140,28 @@
     </div>
 
 
+    {% for news in news_items %}
+
     <a class="news-card"
-        href="{% url 'signed_pdf' 'news_05.pdf' %}?token={{ news_05_token|urlencode }}">
+       href="{% url 'signed_pdf' news.pdf_filename %}?token={{ news.token|urlencode }}">
 
         <span class="pdf-icon">📄</span>
 
         <span class="news-info">
-            <span class="month">2026年 5月号</span>
+            <span class="month">{{ news.title }}</span>
             <span class="description">組合ニュース</span>
         </span>
 
         <span class="arrow">›</span>
     </a>
 
+    {% empty %}
 
-    <a class="news-card"
-        href="{% url 'signed_pdf' 'news_06.pdf' %}?token={{ news_06_token|urlencode }}">
+    <p style="text-align:center; color:#777;">
+        現在、組合ニュースはありません。
+    </p>
 
-        <span class="pdf-icon">📄</span>
-
-        <span class="news-info">
-            <span class="month">2026年 6月号</span>
-            <span class="description">組合ニュース</span>
-        </span>
-
-        <span class="arrow">›</span>
-    </a>
-
-
-    <a class="news-card"
-        href="{% url 'signed_pdf' 'news_07.pdf' %}?token={{ news_07_token|urlencode }}">
-
-        <span class="pdf-icon">📄</span>
-
-        <span class="news-info">
-            <span class="month">2026年 7月号</span>
-            <span class="description">組合ニュース</span>
-        </span>
-
-        <span class="arrow">›</span>
-    </a>
+    {% endfor %}
 
 
     <div class="footer">

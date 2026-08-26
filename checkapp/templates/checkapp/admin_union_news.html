@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>組合ニュース管理</title>
+
+    <style>
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            background: #f4f6f8;
+            font-family: -apple-system, BlinkMacSystemFont,
+                         "Helvetica Neue", "Yu Gothic", sans-serif;
+            color: #222;
+        }
+
+        .page {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 24px 16px 40px;
+        }
+
+        h1 {
+            font-size: 25px;
+            margin-bottom: 8px;
+        }
+
+        .guide {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 24px;
+        }
+
+        .news-card {
+            background: white;
+            border-radius: 12px;
+            padding: 18px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        .news-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .filename {
+            color: #777;
+            font-size: 13px;
+        }
+
+        .empty {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            color: #777;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="page">
+
+    <h1>📰 組合ニュース管理</h1>
+
+    <div class="guide">
+        組合ニュースの追加・変更・削除を行います。
+    </div>
+
+    <a href="{% url 'admin_union_news_add' %}"
+       style="
+           display:block;
+           background:#1976d2;
+           color:white;
+           text-decoration:none;
+           text-align:center;
+           padding:15px;
+           border-radius:10px;
+           font-size:17px;
+           font-weight:700;
+           margin-bottom:22px;
+       ">
+        ＋ 新しいニュースを追加
+    </a>
+
+    {% for news in news_items %}
+
+        <div class="news-card">
+            <div class="news-title">
+                {{ news.title }}
+            </div>
+
+            <div class="filename">
+                PDF：{{ news.pdf_filename }}
+            </div>
+
+            <a href="{% url 'admin_union_news_edit' news.id %}"
+               style="
+                   display:block;
+                   margin-top:14px;
+                   background:#1976d2;
+                   color:white;
+                   text-decoration:none;
+                   text-align:center;
+                   padding:11px;
+                   border-radius:8px;
+                   font-weight:700;
+               ">
+                変更する
+            </a>
+
+            <a href="{% url 'admin_union_news_delete' news.id %}"
+               style="
+                   display:block;
+                   margin-top:8px;
+                   background:#d32f2f;
+                   color:white;
+                   text-decoration:none;
+                   text-align:center;
+                   padding:11px;
+                   border-radius:8px;
+                   font-weight:700;
+               ">
+                削除する
+            </a>
+        </div>
+
+    {% empty %}
+
+        <div class="empty">
+            登録されている組合ニュースはありません。
+        </div>
+
+    {% endfor %}
+
+</div>
+
+</body>
+</html>

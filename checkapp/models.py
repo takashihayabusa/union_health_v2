@@ -187,3 +187,32 @@ class BroadcastHistory(models.Model):
 
     def __str__(self):
         return self.title
+
+
+# =====================================
+# 組合ニュース
+# =====================================
+class UnionNews(models.Model):
+
+    # 組合ニュースの題名
+    title = models.CharField(
+        max_length=200
+    )
+
+    # PDFファイル名
+    pdf_filename = models.CharField(
+        max_length=255
+    )
+
+    # 登録日時
+    created_at = models.DateTimeField(
+        auto_now_add=True
+    )
+
+    # 更新日時
+    updated_at = models.DateTimeField(
+        auto_now=True
+    )
+
+    def __str__(self):
+        return self.title
