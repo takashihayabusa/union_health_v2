@@ -12,3 +12,8 @@ line_bot_api = LineBotApi(
 handler = WebhookHandler(
     settings.LINE_CHANNEL_SECRET
 )
+# マルキョウユニオンLINE専用
+# 通常のお知らせ配信だけに使用
+union_line_bot_api = LineBotApi(
+    settings.UNION_LINE_CHANNEL_ACCESS_TOKEN
+)

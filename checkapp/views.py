@@ -28,6 +28,7 @@ print("CHECKAPP 起動")
 
 from .line_api import (
     line_bot_api,
+    union_line_bot_api,
     handler,
 )
 # =====================================
@@ -1595,7 +1596,7 @@ def broadcast_test_send(request):
 
     # 126280だけへ送信
     try:
-        line_bot_api.push_message(
+        union_line_bot_api.push_message(
             test_user.user_id,
             TextSendMessage(text=message_text)
         )
@@ -1774,7 +1775,7 @@ def broadcast_all_send(request):
     for user in users:
 
         try:
-            line_bot_api.push_message(
+            union_line_bot_api.push_message(
                 user.user_id,
                 TextSendMessage(text=message_text)
             )
