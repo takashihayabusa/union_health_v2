@@ -149,7 +149,9 @@
 
         <span class="news-info">
             <span class="month">{{ news.title }}</span>
-            <span class="description">組合ニュース</span>
+            {% if news.content %}
+            <span class="description">{{ news.content|linebreaksbr }}</span>
+            {% endif %}
         </span>
 
         <span class="arrow">›</span>

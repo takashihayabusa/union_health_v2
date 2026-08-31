@@ -1657,7 +1657,7 @@ def broadcast_pdf_file(request, filename):
 
     # Android対策：PDF本体はダウンロード方式
     response["Content-Disposition"] = (
-        f'attachment; filename="document.pdf"'
+        f'inline; filename="document.pdf"'
     )
 
     return response
@@ -1796,9 +1796,40 @@ def broadcast_all_send(request):
     )
 
     return HttpResponse(
-        f"全組合員への配信が完了しました。"
-        f" 成功：{success}件 / 失敗：{error}件"
-    )
+    f"""
+    <!DOCTYPE html>
+    <html lang="ja">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>配信完了</title>
+    </head>
+    <body style="font-family: sans-serif; text-align: center; padding: 40px 20px;">
+
+        <h2>全組合員への配信が完了しました</h2>
+
+        <p style="font-size: 18px;">
+            成功：{success}件 / 失敗：{error}件
+        </p>
+
+        <a href="/"
+            style="
+            display: inline-block;
+            margin-top: 30px;
+            padding: 14px 30px;
+            background: #444;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 17px;
+        ">
+            最初の画面に戻る
+        </a>
+
+    </body>
+    </html>
+    """
+)
 
 
 # =====================================
@@ -2029,6 +2060,7 @@ def admin_union_news_add(request):
     if request.method == "POST":
 
         title = request.POST.get("title", "").strip()
+        content = request.POST.get("content", "").strip()
         pdf_file = request.FILES.get("pdf_file")
 
         # 題名は必須
@@ -2062,6 +2094,7 @@ def admin_union_news_add(request):
             # データベース登録
             UnionNews.objects.create(
                 title=title,
+                content=content,
                 pdf_filename=filename
             )
 
@@ -2087,6 +2120,7 @@ def admin_union_news_edit(request, news_id):
     if request.method == "POST":
 
         title = request.POST.get("title", "").strip()
+        content = request.POST.get("content", "").strip()
         pdf_file = request.FILES.get("pdf_file")
 
         if not title:
@@ -2117,6 +2151,7 @@ def admin_union_news_edit(request, news_id):
 
             # データベースを新しい内容へ変更
             news.title = title
+            news.content = content
             news.pdf_filename = new_filename
             news.save()
 

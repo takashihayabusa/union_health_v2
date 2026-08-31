@@ -199,6 +199,12 @@ class UnionNews(models.Model):
         max_length=200
     )
 
+    # 内容（任意）
+    content = models.TextField(
+        blank=True,
+        default=""
+    )
+
     # PDFファイル名
     pdf_filename = models.CharField(
         max_length=255

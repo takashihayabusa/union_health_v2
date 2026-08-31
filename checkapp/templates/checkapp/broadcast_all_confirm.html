@@ -13,7 +13,7 @@
             padding: 20px;
             background: #f4f9ff;
             font-family: -apple-system, BlinkMacSystemFont,
-                         "Helvetica Neue", "Yu Gothic", sans-serif;
+            "Helvetica Neue", "Yu Gothic", sans-serif;
         }
 
         .container {
@@ -140,9 +140,10 @@
         <input type="hidden" name="title" value="{{ title }}">
         <input type="hidden" name="content" value="{{ content }}">
         <input type="hidden" name="has_pdf" value="{{ has_pdf }}">
+        <input type="hidden" name="pdf_name" value="{{ pdf_name }}">
 
-        <button type="submit" class="send-button">
-            本当に全組合員へ配信する
+        <input type="hidden" name="pdf_name" value="{{ pdf_name }}">
+        <button type="submit" class="send-button">            本当に全組合員へ配信する
         </button>
     </form>
 
