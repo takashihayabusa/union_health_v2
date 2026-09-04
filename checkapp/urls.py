@@ -1,4 +1,4 @@
-from django.urls import path
+﻿from django.urls import path
 from . import views
 
 urlpatterns = [
@@ -19,7 +19,7 @@ urlpatterns = [
     path("send/", views.region_send, name="region_send"),
     
     path("send_health_check/", views.send_health_check, name="send_health_check"),
-    
+    path("health-check-schedule/", views.health_check_schedule, name="health_check_schedule"),
     path("emergency/", views.emergency_region, name="emergency_region"),
 
     path("emergency-send/", views.emergency_send, name="emergency_send"),
@@ -69,11 +69,15 @@ urlpatterns = [
     path("protected-pdf/<str:filename>/", views.protected_pdf, name="protected_pdf"),
     path("signed-pdf/<str:filename>/", views.signed_pdf, name="signed_pdf"),
     
-    path("union-news/", views.union_news, name="union_news"),
+    path("union-news/", views.union_news_login, name="union_news_login"),
+    path("union-news-view/", views.union_news, name="union_news"),
     path("mycar/", views.mycar, name="mycar"),
+    path("mycar-login/", views.mycar_login, name="mycar_login"),
     path("roukin/", views.roukin, name="roukin"),
+    path("roukin-login/", views.roukin_login, name="roukin_login"),
     path("consult/", views.consult, name="consult"),
     path("broadcast-history/", views.broadcast_history, name="broadcast_history"),
+    path("broadcast-history-login/", views.broadcast_history_login, name="broadcast_history_login"),
     path("admin-broadcast-history/", views.admin_broadcast_history, name="admin_broadcast_history"),
     path(
         "admin-broadcast-history/delete/",
@@ -105,3 +109,4 @@ urlpatterns = [
 
 
     ] 
+

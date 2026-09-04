@@ -108,6 +108,21 @@ a{
     background:#b71c1c;
 
 }
+.home-btn {
+    display: inline-block;
+    padding: 12px 25px;
+    background: #1976d2;
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    font-size: 18px;
+    font-weight: bold;
+    margin-left: 15px;
+}
+
+.home-btn:hover {
+    background: #0d47a1;
+}
 
 </style>
 
@@ -125,9 +140,11 @@ a{
     <a href="{% url 'delete_logs' %}"
         class="delete-btn"
         onclick="return confirm('Excelへ保存しましたか？\nLINE LOGを削除しますか？');">
-
         🗑 LOG削除
+    </a>
 
+    <a href="/" class="home-btn">
+        🏠 管理画面に戻る
     </a>
 
 </div>

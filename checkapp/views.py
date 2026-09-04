@@ -1,4 +1,5 @@
 from django.contrib.auth.hashers import check_password
+from django.urls import reverse
 from .forms import AccountRegisterForm, LoginForm
 from django.shortcuts import render,redirect,get_object_or_404
 from django.http import HttpResponse, FileResponse, Http404
@@ -7,11 +8,12 @@ from openpyxl import Workbook
 from django.views.decorators.csrf import csrf_exempt
 from openpyxl.styles import Font, PatternFill, Alignment
 
+
 from linebot import LineBotApi, WebhookHandler
 from linebot.models import *
 
 from django.conf import settings
-from .models import LineUser, LineLog, Account, BroadcastHistory, UnionNews
+from .models import LineUser, LineLog, Account, BroadcastHistory, UnionNews, HealthCheckSchedule
 
 from openpyxl.styles import PatternFill, Font
 from datetime import datetime
@@ -57,7 +59,17 @@ def save_line_log(user, sender, message_type, content):
 from django.shortcuts import redirect
 
 def home(request):
-    return render(request, "checkapp/home.html")
+    health_schedule, created = HealthCheckSchedule.objects.get_or_create(
+        pk=1
+    )
+
+    return render(
+        request,
+        "checkapp/home.html",
+        {
+            "health_schedule": health_schedule,
+        }
+    )
 
 def union_home(request):
 
@@ -165,6 +177,18 @@ def send_health_check(request):
     return HttpResponse(
         f"健康チェック送信完了 成功:{success}件 失敗:{error}件"
     )
+def health_check_schedule(request):
+    schedule, created = HealthCheckSchedule.objects.get_or_create(pk=1)
+
+    if request.method == "POST":
+        schedule.enabled = request.POST.get("enabled") == "on"
+        schedule.weekday = int(request.POST.get("weekday", 0))
+        schedule.send_time = request.POST.get("send_time", "08:00")
+        schedule.save()
+
+        return redirect("home")
+
+    return redirect("home")
 # -------------------------
 # 緊急生存確認
 # -------------------------
@@ -188,14 +212,14 @@ def callback(request):
 @handler.add(FollowEvent)
 def handle_follow(event):
 
-    user_id = event.source.user_id
+    user_id = event.source.user_idF
 
     LineUser.objects.get_or_create(
         user_id=user_id
     )
 
     register_url = (
-        f"https://nonfrigid-smug-candance.ngrok-free.dev/register?user_id={user_id}"
+        f"https://freefall-married-headscarf.ngrok-free.dev/register?user_id={user_id}"
     )
 
     line_bot_api.reply_message(
@@ -1382,8 +1406,8 @@ def broadcast_history(request):
             )
 
             broadcast.pdf_url = (
-                f"/broadcast-pdf/{safe_name}/"
-                f"?token={pdf_token}"
+                reverse("broadcast_pdf", args=[safe_name])
+                +f"?token={pdf_token}"
             )
 
     return render(
@@ -1581,7 +1605,7 @@ def broadcast_test_send(request):
 
         # トークン付きPDF案内ページURLを作る
         # LINEから開ける公開URLを使用
-        public_base_url = "https://nonfrigid-smug-candance.ngrok-free.dev"
+        public_base_url = "https://freefall-married-headscarf.ngrok-free.dev"
 
         pdf_url = (
             f"{public_base_url}/broadcast-pdf/"
@@ -1608,9 +1632,31 @@ def broadcast_test_send(request):
             status=500
         )
 
-    return HttpResponse(
-        "社員番号126280へのテスト配信が完了しました。"
-    )
+    return HttpResponse("""
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>テスト配信完了</title>
+</head>
+<body style="text-align:center; padding-top:60px; font-family:sans-serif;">
+    <h2>テスト配信が完了しました。</h2>
+    <p>社員番号126280へ送信しました。</p>
+
+    <a href="/"
+       style="display:inline-block;
+              margin-top:30px;
+              padding:14px 30px;
+              background:#1976d2;
+              color:white;
+              text-decoration:none;
+              border-radius:8px;
+              font-size:18px;">
+        管理画面に戻る
+    </a>
+</body>
+</html>
+""")
 
 
 # =====================================
@@ -2201,3 +2247,33 @@ def admin_union_news_delete(request, news_id):
             "news": news,
         }
     )
+
+
+def union_news_login(request):
+    request.session.pop('account_id', None)
+    request.session.pop('account_name', None)
+    return redirect('/login/?next=news')
+
+
+def mycar_login(request):
+    request.session.pop('account_id', None)
+    request.session.pop('account_name', None)
+    return redirect('/login/?next=mycar')
+
+
+def mycar_login(request):
+    request.session.pop('account_id', None)
+    request.session.pop('account_name', None)
+    return redirect('/login/?next=mycar')
+
+
+def roukin_login(request):
+    request.session.pop('account_id', None)
+    request.session.pop('account_name', None)
+    return redirect('/login/?next=roukin')
+
+
+def broadcast_history_login(request):
+    request.session.pop('account_id', None)
+    request.session.pop('account_name', None)
+    return redirect('/login/?next=broadcast_history')

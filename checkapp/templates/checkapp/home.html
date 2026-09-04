@@ -252,6 +252,43 @@
                 </button>
             
             </form>
+            <hr>
+
+<h3>健康チェック 定期送信設定</h3>
+
+<form action="{% url 'health_check_schedule' %}" method="post">
+    {% csrf_token %}
+
+    <p>
+        <label>
+            <input type="checkbox" name="enabled"
+                   {% if health_schedule.enabled %}checked{% endif %}>
+            自動送信する
+        </label>
+    </p>
+
+    <p>
+        <label>送信曜日：</label>
+        <select name="weekday">
+            <option value="0" {% if health_schedule.weekday == 0 %}selected{% endif %}>月曜日</option>
+            <option value="1" {% if health_schedule.weekday == 1 %}selected{% endif %}>火曜日</option>
+            <option value="2" {% if health_schedule.weekday == 2 %}selected{% endif %}>水曜日</option>
+            <option value="3" {% if health_schedule.weekday == 3 %}selected{% endif %}>木曜日</option>
+            <option value="4" {% if health_schedule.weekday == 4 %}selected{% endif %}>金曜日</option>
+            <option value="5" {% if health_schedule.weekday == 5 %}selected{% endif %}>土曜日</option>
+            <option value="6" {% if health_schedule.weekday == 6 %}selected{% endif %}>日曜日</option>
+        </select>
+    </p>
+
+    <p>
+        <label>送信時間：</label>
+        <input type="time"
+               name="send_time"
+               value="{% if health_schedule.send_time %}{{ health_schedule.send_time|time:'H:i' }}{% else %}08:00{% endif %}">
+    </p>
+
+    <button type="submit">設定を保存</button>
+</form>
 
         </div>
 

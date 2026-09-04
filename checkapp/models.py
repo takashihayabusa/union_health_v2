@@ -222,3 +222,41 @@ class UnionNews(models.Model):
 
     def __str__(self):
         return self.title
+
+# =====================================
+# Health Check Schedule
+# =====================================
+class HealthCheckSchedule(models.Model):
+
+    WEEKDAY_CHOICES = [
+        (0, "月曜日"),
+        (1, "火曜日"),
+        (2, "水曜日"),
+        (3, "木曜日"),
+        (4, "金曜日"),
+        (5, "土曜日"),
+        (6, "日曜日"),
+    ]
+
+    enabled = models.BooleanField(
+        default=False
+    )
+
+    weekday = models.IntegerField(
+        choices=WEEKDAY_CHOICES,
+        default=0
+    )
+
+    send_time = models.TimeField(
+        default="08:00"
+    )
+
+    updated_at = models.DateTimeField(
+        auto_now=True
+    )
+    last_sent_at = models.DateTimeField(
+        null=True,
+        blank=True
+    )
+    def __str__(self):
+        return "健康チェック定期送信設定"
