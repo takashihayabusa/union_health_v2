@@ -212,7 +212,7 @@ def callback(request):
 @handler.add(FollowEvent)
 def handle_follow(event):
 
-    user_id = event.source.user_idF
+    user_id = event.source.user_id
 
     LineUser.objects.get_or_create(
         user_id=user_id
