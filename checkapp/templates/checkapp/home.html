@@ -1,0 +1,409 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>マルキョウユニオン健康チェック</title>
+
+    <style>
+
+        body {
+
+            background: #f4f9ff;
+            font-family: sans-serif;
+            margin: 0;
+            padding: 0;
+
+        }
+
+        .container {
+
+            width: 90%;
+            max-width: 700px;
+            margin: 30px auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+
+        }
+
+        h1 {
+
+            text-align: center;
+            color: #1976d2;
+            margin-bottom: 10px;
+
+        }
+
+        .sub-title {
+
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+
+        }
+
+        .card {
+
+            background: #f8fbff;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 25px;
+            border: 1px solid #dbe9ff;
+
+        }
+
+        h2 {
+
+            color: #1565c0;
+            margin-top: 0;
+
+        }
+
+        button {
+
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            background: #1976d2;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            margin-top: 15px;
+
+        }
+
+        button:hover {
+
+            background: #0d47a1;
+
+        }
+
+        .qr-button {
+
+            background: #06c755;
+
+        }
+
+        .qr-button:hover {
+
+            background: #039c43;
+
+        }
+
+        select {
+
+            width: 100%;
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+            margin-top: 10px;
+
+        }
+
+        .success {
+
+            background: #dff0d8;
+            color: #2e7d32;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+
+        }
+
+        .menu-link {
+
+            display: block;
+            text-align: center;
+            text-decoration: none;
+            background: #43a047;
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            font-size: 18px;
+
+        }
+
+        .menu-link:hover {
+
+            background: #2e7d32;
+
+        }
+
+        .qr-box {
+
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+
+        }
+
+        .qr-box img {
+
+            border-radius: 15px;
+            background: white;
+            padding: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h1>
+            マルキョウユニオン
+        </h1>
+
+        <p class="sub-title">
+            健康チェック・緊急生存確認システム
+        </p>
+
+        {% if messages %}
+
+            {% for message in messages %}
+
+                <div class="success">
+
+                    {{ message }}
+
+                </div>
+
+            {% endfor %}
+
+        {% endif %}
+
+
+        <!-- お知らせ配信 -->
+
+        <div class="card">
+
+            <h2>
+                📢 お知らせ配信
+            </h2>
+
+            <form action="{% url 'broadcast_send' %}" method="get">
+
+                <button type="submit">
+                    お知らせを配信
+                </button>
+
+            </form>
+
+            <form action="{% url 'admin_broadcast_history' %}" method="get"
+                  style="margin-top: 10px;">
+
+                <button type="submit">
+                    過去の配信を見る
+                </button>
+
+            </form>
+
+        </div>
+
+
+        <!-- 組合ニュース管理 -->
+
+        <div class="card">
+
+            <h2>
+                📰 組合ニュース管理
+            </h2>
+
+            <form action="{% url 'admin_union_news' %}" method="get">
+
+                <button type="submit">
+                    組合ニュースを管理
+                </button>
+
+            </form>
+
+        </div>
+
+
+        <!-- 健康チェック送信 -->
+
+        <div class="card">
+
+            <h2>
+                健康チェック送信
+            </h2>
+
+            <form action="{% url 'send_health_check' %}" method="get">
+
+                {% csrf_token %}
+            
+                <button type="submit">
+                    健康チェックを送信
+                </button>
+            
+            </form>
+            <hr>
+
+<h3>健康チェック 定期送信設定</h3>
+
+<form action="{% url 'health_check_schedule' %}" method="post">
+    {% csrf_token %}
+
+    <p>
+        <label>
+            <input type="checkbox" name="enabled"
+                   {% if health_schedule.enabled %}checked{% endif %}>
+            自動送信する
+        </label>
+    </p>
+
+    <p>
+        <label>送信曜日：</label>
+        <select name="weekday">
+            <option value="0" {% if health_schedule.weekday == 0 %}selected{% endif %}>月曜日</option>
+            <option value="1" {% if health_schedule.weekday == 1 %}selected{% endif %}>火曜日</option>
+            <option value="2" {% if health_schedule.weekday == 2 %}selected{% endif %}>水曜日</option>
+            <option value="3" {% if health_schedule.weekday == 3 %}selected{% endif %}>木曜日</option>
+            <option value="4" {% if health_schedule.weekday == 4 %}selected{% endif %}>金曜日</option>
+            <option value="5" {% if health_schedule.weekday == 5 %}selected{% endif %}>土曜日</option>
+            <option value="6" {% if health_schedule.weekday == 6 %}selected{% endif %}>日曜日</option>
+        </select>
+    </p>
+
+    <p>
+        <label>送信時間：</label>
+        <input type="time"
+               name="send_time"
+               value="{% if health_schedule.send_time %}{{ health_schedule.send_time|time:'H:i' }}{% else %}08:00{% endif %}">
+    </p>
+
+    <button type="submit">設定を保存</button>
+</form>
+
+        </div>
+
+
+        <!-- 緊急生存確認 -->
+
+        <div class="card">
+
+            <h2>緊急生存確認</h2>
+        
+            <form action="{% url 'emergency_region' %}" method="get">
+
+                <button class="main-btn" type="submit">
+                    緊急生存確認を送信
+                </button>
+            
+            </form>
+        
+        </div>
+
+
+        <!-- LINE登録 -->
+
+        <div class="card">
+
+            <h2>
+                LINE登録
+            </h2>
+
+            <p>
+                初めての方はこちらから登録してください
+            </p>
+
+            <button
+                type="button"
+                class="qr-button"
+                onclick="toggleQR()"
+            >
+
+                LINE登録QRコードを表示
+
+            </button>
+
+            <div id="qrBox" class="qr-box">
+
+            
+                <img src="{% static 'images/union_home_qr.png' %}">
+                    width="250"
+            
+
+                <p>
+                    LINEでQRコードを読み取ってください
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <!-- ユーザー一覧 -->
+
+        <div class="card">
+
+            <h2>
+                登録者一覧
+            </h2>
+        
+            <a href="{% url 'account_list' %}" class="menu-link">
+        
+                登録者一覧を見る
+        
+            </a>
+        
+        </div>
+
+
+        <!-- LINEログ一覧 -->
+
+        <div class="card">
+
+            <h2>
+                LINEログ一覧
+            </h2>
+
+            <a href="{% url 'line_logs' %}" class="menu-link">
+
+                LINE会話LOGを見る
+
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <script>
+
+        function toggleQR() {
+
+            const qrBox = document.getElementById("qrBox");
+
+            if (qrBox.style.display === "block") {
+
+                qrBox.style.display = "none";
+
+            } else {
+
+                qrBox.style.display = "block";
+
+            }
+
+        }
+
+    </script>
+
+</body>
+
+</html>

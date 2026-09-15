@@ -1,0 +1,19 @@
+from django.conf import settings
+
+from linebot import (
+    LineBotApi,
+    WebhookHandler,
+)
+
+line_bot_api = LineBotApi(
+    settings.LINE_CHANNEL_ACCESS_TOKEN
+)
+
+handler = WebhookHandler(
+    settings.LINE_CHANNEL_SECRET
+)
+# マルキョウユニオンLINE専用
+# 通常のお知らせ配信だけに使用
+union_line_bot_api = LineBotApi(
+    settings.UNION_LINE_CHANNEL_ACCESS_TOKEN
+)

@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>配信内容の確認</title>
+
+    <style>
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            padding: 20px;
+            background: #f4f9ff;
+            font-family: -apple-system, BlinkMacSystemFont,
+                         "Helvetica Neue", "Yu Gothic", sans-serif;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 650px;
+            margin: 20px auto;
+            background: white;
+            padding: 28px;
+            border-radius: 18px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #1976d2;
+        }
+
+        .item {
+            margin-top: 22px;
+        }
+
+        .label {
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .value {
+            background: #f8fbff;
+            border: 1px solid #dbe9ff;
+            border-radius: 10px;
+            padding: 15px;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .notice {
+            margin-top: 25px;
+            padding: 15px;
+            background: #fff8e1;
+            border-radius: 10px;
+            line-height: 1.6;
+        }
+
+        .back-button {
+            display: block;
+            width: 100%;
+            margin-top: 25px;
+            padding: 15px;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 10px;
+            background: #777;
+            color: white;
+            font-size: 17px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>📢 配信内容の確認</h1>
+
+    <div class="item">
+        <div class="label">タイトル</div>
+        <div class="value">{{ title }}</div>
+    </div>
+
+    <div class="item">
+        <div class="label">本文</div>
+        <div class="value">{{ content }}</div>
+    </div>
+
+    <div class="item">
+        <div class="label">添付PDF</div>
+
+        <div class="value">
+            {% if has_pdf == "yes" %}
+                あり{% if pdf_name %}：{{ pdf_name }}{% endif %}
+            {% else %}
+                なし
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="notice">
+        内容を確認してからテスト配信してください。<br>
+        現在は社員番号126280だけへのテスト配信です。
+    </div>
+
+    <form action="{% url 'broadcast_test_send' %}" method="post">
+        {% csrf_token %}
+
+        <input type="hidden" name="title" value="{{ title }}">
+        <input type="hidden" name="content" value="{{ content }}">
+        <input type="hidden" name="has_pdf" value="{{ has_pdf }}">
+        <input type="hidden" name="pdf_name" value="{{ pdf_name }}">
+
+        <button type="submit"
+                style="width:100%;
+                       margin-top:25px;
+                       padding:16px;
+                       border:0;
+                       border-radius:10px;
+                       background:#06c755;
+                       color:white;
+                       font-size:18px;
+                       font-weight:bold;">
+            自分だけにテスト配信する
+        </button>
+    </form>
+
+    <form action="{% url 'broadcast_all_confirm' %}" method="post">
+        {% csrf_token %}
+
+        <input type="hidden" name="title" value="{{ title }}">
+        <input type="hidden" name="content" value="{{ content }}">
+        <input type="hidden" name="has_pdf" value="{{ has_pdf }}">
+
+        <button type="submit"
+                style="width:100%;
+                       margin-top:20px;
+                       padding:16px;
+                       border:0;
+                       border-radius:10px;
+                       background:#1976d2;
+                       color:white;
+                       font-size:18px;
+                       font-weight:bold;">
+            全組合員への配信確認へ
+        </button>
+    </form>
+
+    <a href="{% url 'broadcast_send' %}" class="back-button">
+        入力画面に戻る
+    </a>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>削除の確認</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 20px;
+            background: #f5f7f8;
+            font-family: -apple-system, BlinkMacSystemFont,
+                         "Helvetica Neue", "Yu Gothic",
+                         "Hiragino Kaku Gothic ProN", sans-serif;
+            color: #222;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 520px;
+            margin: 0 auto;
+        }
+
+        .header, .card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+
+        .header {
+            text-align: center;
+        }
+
+        .header h1 {
+            margin: 0 0 10px;
+            font-size: 25px;
+            color: #c62828;
+        }
+
+        .warning {
+            line-height: 1.7;
+            color: #555;
+        }
+
+        .date {
+            font-size: 13px;
+            color: #888;
+            margin-bottom: 6px;
+        }
+
+        .title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .content {
+            font-size: 15px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+        }
+
+        .buttons {
+            margin-top: 20px;
+        }
+
+        .delete-button {
+            width: 100%;
+            border: 0;
+            border-radius: 12px;
+            padding: 15px;
+            background: #c62828;
+            color: white;
+            font-size: 17px;
+            font-weight: bold;
+        }
+
+        .cancel {
+            display: block;
+            text-align: center;
+            margin-top: 15px;
+            padding: 14px;
+            background: #e5e5e5;
+            color: #333;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="header">
+        <h1>⚠️ 本当に削除しますか？</h1>
+        <div class="warning">
+            選択した配信を削除しようとしています。<br>
+            内容を確認してください。
+        </div>
+    </div>
+
+    {% for broadcast in broadcasts %}
+
+        <div class="card">
+
+            <div class="date">
+                {{ broadcast.sent_at|date:"Y年n月j日 H:i" }}
+            </div>
+
+            <div class="title">
+                {{ broadcast.title }}
+            </div>
+
+            <div class="content">{{ broadcast.content }}</div>
+
+        </div>
+
+    {% endfor %}
+
+    <div class="buttons">
+
+        <form method="post"
+              action="{% url 'admin_broadcast_history_delete_execute' %}">
+            {% csrf_token %}
+
+            {% for id in selected_ids %}
+                <input type="hidden"
+                       name="broadcast_ids"
+                       value="{{ id }}">
+            {% endfor %}
+
+            <button class="delete-button" type="submit">
+                削除する
+            </button>
+        </form>
+
+        <a class="cancel"
+           href="{% url 'admin_broadcast_history_delete' %}">
+            キャンセル
+        </a>
+
+    </div>
+
+</div>
+
+</body>
+</html>

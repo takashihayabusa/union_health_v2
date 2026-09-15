@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>組合ニュース削除確認</title>
+
+    <style>
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            background: #f4f6f8;
+            font-family: -apple-system, BlinkMacSystemFont,
+                         "Helvetica Neue", "Yu Gothic", sans-serif;
+            color: #222;
+        }
+
+        .page {
+            width: 100%;
+            max-width: 560px;
+            margin: 0 auto;
+            padding: 30px 16px 40px;
+        }
+
+        h1 {
+            font-size: 25px;
+            margin-bottom: 24px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 14px;
+            padding: 22px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        .warning {
+            background: #fff0f0;
+            color: #b00000;
+            padding: 15px;
+            border-radius: 9px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .news-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .filename {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 25px;
+            word-break: break-all;
+        }
+
+        .delete-button {
+            width: 100%;
+            border: none;
+            border-radius: 9px;
+            padding: 15px;
+            font-size: 17px;
+            font-weight: 700;
+            background: #d32f2f;
+            color: white;
+            cursor: pointer;
+        }
+
+        .back {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            color: #555;
+            text-decoration: none;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="page">
+
+    <h1>🗑 組合ニュース削除</h1>
+
+    <div class="card">
+
+        <div class="warning">
+            本当に削除しますか？<br>
+            削除すると元に戻せません。
+        </div>
+
+        <div class="news-title">
+            {{ news.title }}
+        </div>
+
+        <div class="filename">
+            PDF：{{ news.pdf_filename }}
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+
+            <button type="submit" class="delete-button">
+                本当に削除する
+            </button>
+        </form>
+
+    </div>
+
+    <a class="back" href="{% url 'admin_union_news' %}">
+        ← 削除せずに戻る
+    </a>
+
+</div>
+
+</body>
+</html>

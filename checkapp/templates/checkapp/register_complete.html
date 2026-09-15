@@ -1,0 +1,58 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>登録完了</title>
+
+    <!-- 3秒後にLINEホームページへ移動 -->
+    <meta http-equiv="refresh"
+            content="3;url=https://lin.ee/zHqTDDZ">
+
+    <style>
+        body{
+            font-family:sans-serif;
+            text-align:center;
+            padding-top:60px;
+            line-height:1.8;
+        }
+
+        h2{
+            color:#06C755;
+        }
+
+        .button{
+            display:inline-block;
+            margin-top:20px;
+            padding:15px 30px;
+            background:#06C755;
+            color:white;
+            text-decoration:none;
+            border-radius:10px;
+            font-size:20px;
+            font-weight:bold;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h2>🎉 登録ありがとうございます！</h2>
+    
+    <p>
+    組合員登録が完了しました。<br>
+    下のボタンからマルキョウユニオンLINEホームページへ進んでください。
+    </p>
+    
+    <p>
+    ホームページを開くには、<br>
+    <strong>社員番号と4桁のパスワード</strong>が必要です。
+    </p>
+    
+    <a class="button" href="{% url 'login' %}">
+    🏠 マルキョウユニオンLINEホームページを開く
+    </a>
+    
+    </body>
+    </html>

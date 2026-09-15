@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <title>登録ユーザー一覧</title>
+</head>
+
+<body>
+
+<h1>登録ユーザー一覧</h1>
+
+<table border="1" cellpadding="10">
+
+<tr>
+    <th>名前</th>
+    <th>地域</th>
+    <th>LINE ID</th>
+</tr>
+
+{% for user in users %}
+
+<tr>
+    <td>{{ user.name }}</td>
+    <td>{{ user.region }}</td>
+    <td>{{ user.user_id }}</td>
+</tr>
+
+{% endfor %}
+
+</table>
+
+</body>
+</html>

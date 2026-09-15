@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDFを開く</title>
+
+    <style>
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            padding: 20px;
+            background: #f4f9ff;
+            font-family: sans-serif;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 40px auto;
+            background: white;
+            padding: 28px;
+            border-radius: 18px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #1976d2;
+        }
+
+        .filename {
+            margin: 25px 0;
+            padding: 15px;
+            background: #f8fbff;
+            border-radius: 10px;
+            word-break: break-word;
+        }
+
+        .pdf-button {
+            display: block;
+            width: 100%;
+            padding: 17px;
+            margin-top: 25px;
+            border-radius: 10px;
+            background: #1976d2;
+            color: white;
+            text-decoration: none;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .note {
+            margin-top: 20px;
+            color: #666;
+            line-height: 1.7;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>📄 組合からのPDF</h1>
+
+    <div class="filename">
+        {{ filename }}
+    </div>
+
+    <a class="pdf-button"
+       href="{% url 'broadcast_pdf_file' filename=filename %}?token={{ token|urlencode }}">
+        PDFを開く
+    </a>
+
+    <div class="note">
+        「PDFを開く」を押して資料をご覧ください。
+    </div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>緊急生存確認送信</title>
+
+<style>
+
+body{
+    margin:0;
+    padding:0;
+    background:#eef5ff;
+    font-family:sans-serif;
+}
+
+.container{
+    width:90%;
+    max-width:700px;
+    margin:40px auto;
+    background:white;
+    border-radius:20px;
+    padding:30px;
+    box-shadow:0 5px 20px rgba(0,0,0,0.15);
+}
+
+h1{
+    text-align:center;
+    color:#d32f2f;
+    font-size:40px;
+    margin-bottom:30px;
+}
+
+label{
+    display:block;
+    font-size:24px;
+    font-weight:bold;
+    margin-bottom:10px;
+}
+
+select{
+    width:100%;
+    padding:18px;
+    font-size:22px;
+    border-radius:12px;
+    border:2px solid #1976d2;
+    margin-bottom:30px;
+}
+
+button{
+    width:100%;
+    padding:20px;
+    font-size:24px;
+    font-weight:bold;
+    background:#d32f2f;
+    color:white;
+    border:none;
+    border-radius:15px;
+    cursor:pointer;
+    transition:0.3s;
+}
+
+button:hover{
+    background:#b71c1c;
+    transform:scale(1.02);
+}
+
+.notice{
+    background:#fff3cd;
+    color:#856404;
+    padding:15px;
+    border-radius:12px;
+    margin-bottom:25px;
+    font-size:18px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>🚨 緊急生存確認</h1>
+
+<div class="notice">
+送信する地域を選択してください。
+</div>
+
+<form method="POST" action="{% url 'emergency_send' %}">
+
+{% csrf_token %}
+
+<label>地域を選択</label>
+
+<select name="region">
+
+<option value="北九州">北九州</option>
+<option value="福岡">福岡</option>
+<option value="大分">大分</option>
+<option value="熊本">熊本</option>
+<option value="長崎">長崎</option>
+<option value="佐世保">佐世保</option>
+
+</select>
+
+<button type="submit">
+🚨 緊急生存確認を送信
+</button>
+
+</form>
+
+</div>
+
+</body>
+</html>

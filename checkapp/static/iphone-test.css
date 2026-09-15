@@ -1,0 +1,9 @@
+body {
+    background: #dfffe0 !important;
+}
+
+.activity-btn {
+    font-size: 32px !important;
+    min-height: 90px !important;
+    padding: 22px !important;
+}
