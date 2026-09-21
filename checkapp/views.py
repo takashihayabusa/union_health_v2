@@ -1531,16 +1531,16 @@ def broadcast_test_send(request):
     if request.method != "POST":
         return redirect("broadcast_send")
 
-    # テスト送信先はiPhone確認用の社員番号126280だけ
+    # テスト送信先は委員長の久間木さんだけ
     test_user = LineUser.objects.filter(
-        login_id="126280"
+        login_id="011721"
     ).exclude(
         user_id__startswith="web_"
     ).first()
 
     if not test_user:
         return HttpResponse(
-            "テスト送信先（社員番号126280）が見つかりません。",
+            "テスト送信先（委員長）が見つかりません。",
             status=404
         )
 
@@ -1617,7 +1617,7 @@ def broadcast_test_send(request):
             + pdf_url
         )
 
-    # 126280だけへ送信
+    # 委員長だけへ送信
     try:
         union_line_bot_api.push_message(
             test_user.user_id,
@@ -1641,7 +1641,7 @@ def broadcast_test_send(request):
 </head>
 <body style="text-align:center; padding-top:60px; font-family:sans-serif;">
     <h2>テスト配信が完了しました。</h2>
-    <p>社員番号126280へ送信しました。</p>
+    <p>委員長へ送信しました。</p>
 
     <a href="/"
        style="display:inline-block;
